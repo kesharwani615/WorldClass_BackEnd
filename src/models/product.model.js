@@ -3,22 +3,31 @@ import { ProductCategory } from "./product.category.model.js";
 
 const productSchema = new Schema(
   {
-    prodName: {
+    subCategoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ProductSubCategory",
+    },
+    productName: {
       type: String,
       required: [true, "Product Name is required"],
       trim: true,
       index: true,
     },
-    prodDescription: {
-        type: String,
+    productDescription: {
+      type: String,
     },
-    prodPicture: {
-        type: String,
-        required: true,
+    productImage: {
+      type: String,
+      required: true,
     },
-    prodCategory: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "ProductCategory"
+    storage: {
+      type: String,
+    },
+    packSize: {
+      type: String,
+    },
+    cartonSize: {
+      type: String,
     },
     isActive: {
       type: Boolean,

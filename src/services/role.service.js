@@ -3,7 +3,6 @@ import { Role } from "../models/role.model.js";
 import { User } from "../models/user.model.js";
 import { apiError } from "../utils/apiError.js";
 
-
 //Register Role
 const registerRole = async (roleDetail) => {
   //TODO: Register a new Role
@@ -94,16 +93,12 @@ const deleteRole = async (roleId) => {
 // Get Role
 const getRole = async (roleId) => {
   //TODO: Get Role
-  if (!isValidObjectId(roleId)) {
-    throw new apiError(400, "Invalid roleId"); 
-  }
-
-  if (!roleId?.trim()) {
-    throw new apiError(400, "RoleId is missing"); 
+  if (!isValidObjectId(roleId) || !roleId?.trim()) {
+    throw new apiError(400, "Invalid or roleId is missing"); 
   }
 
   const role = await Role.findOne({ _id: roleId });
-  
+  console.log("----role: ", role);
   if (!role) {
     throw new apiError(400, "Role not found"); 
   }else{

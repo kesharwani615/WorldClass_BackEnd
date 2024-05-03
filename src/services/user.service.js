@@ -433,6 +433,87 @@ const updateUserAvatar = async(userId, avatarLocalPath) =>{
   return updatedAvatar;
 };
 
+// Reset Password
+const resetPassword = async (reset_token, newPassword) => {
+  console.log("paramsData", reset_token);
+  // Disable pre-hook
+  User.disablePreSaveHook();
+
+  let decodedToken;
+  try {
+     // Verify the reset token
+     decodedToken = Jwt.verify(reset_token, process.env.RESET_TOKEN_KEY);
+     console.log("decodedToken", decodedToken); 
+   } catch (error) {
+     // Handle token verification errors
+     if (error instanceof Jwt.TokenExpiredError) {
+       throw new Error("Reset token has expired");
+     } else if (error instanceof Jwt.JsonWebTokenError) {
+       throw new Error("Invalid reset token");
+     }
+   }
+
+  // Ensure that the token was decoded successfully
+  if (!decodedToken || !decodedToken._id) {
+    throw new Error("Invalid reset token");
+  }
+
+  // Find the user by ID from decoded token
+  const user = await User.findById(decodedToken._id);
+  console.log("user found", user);
+  if (!user) {
+    throw new apiError(400, "User not found")
+  }
+
+  if(!newPassword) {
+    throw new apiError(400, "New password is required")
+  }
+
+  const validatePasswordCheck = validatePassword(newPassword);
+  if(!validatePasswordCheck) {
+    throw new apiError(400, "One digit small, capital letter & must be special characters")
+  }
+  // Update the user's password
+    console.log("inside if", user.password);
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+  // Enable pre-hook
+  User.enablePreSaveHook();
+  
+  return null;
+}
+
+// Forgot Password
+const forgetPassword = async (forgetDetails) => {
+  //TODO: Forgot Password
+  const { email } = forgetDetails;
+
+  if (!email) {
+    throw new apiError(400, "Email is required"); 
+  }
+
+  const user = await User.findOne({email: email});
+  console.log("user", user);
+  if (!user) {
+    throw new apiError(404, "User does not exists"); 
+  }
+
+  const resetToken = await user.getResetToken();
+  console.log("reset token", resetToken);
+
+  const subject = `World Class Gourmet Foods Reset Password`
+  const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`
+
+  const resetMessageAndLink = `Click on the link to reset your password. ${resetUrl}. If you 
+  have not request then ignore it`
+
+  // send token via email
+  await sendEmail(user.email, subject, resetMessageAndLink)
+
+  return { resetMessageAndLink }
+}
+
 export default {
   registerUser,
   updateUserProfile,
@@ -445,5 +526,7 @@ export default {
   logoutUser,
   refreshAccessToken,
   changeCurrentUserPassword,
-  updateUserAvatar
+  updateUserAvatar,
+  resetPassword,
+  forgetPassword,
 }

@@ -272,6 +272,33 @@ const updateUserAvatar = asyncHandler(async(req, res)=>{
   }
 });
 
+// Reset the user password
+const resetPassword = asyncHandler( async (req, res) => {
+  //TODO: Reset user's password
+  try {
+    const resetPasswordResponse = await userService.resetPassword(req.params.reset_token, req.body.newPassword);
+    return res.status(200).json
+    ( new apiResponse(200, resetPasswordResponse, "Password has been reset successfully"))
+  } catch (error) {
+    return res.status(500).json
+    (new apiError({ statusCode: error.statusCode, message: error.message}));
+  }
+})
+
+// Forget the user password
+const forgetPassword = asyncHandler(async (req, res) => {
+  try {
+    const forgetPasswordResponse = await userService.forgetPassword(req.body);
+      
+     return res.status(200).json( new apiResponse(200, forgetPasswordResponse, "Link has been sent in your email"))
+    
+  } catch (error) {
+    return res.status(500)
+      .json(new apiError({ statusCode: error.statusCode, message: error.message })
+      );
+  }
+
+})
 
 export {
   registerUser,
@@ -285,5 +312,7 @@ export {
   logoutUser,
   refreshAccessToken,
   changeCurrentUserPassword,
-  updateUserAvatar
+  updateUserAvatar,
+  resetPassword,
+  forgetPassword,
 };

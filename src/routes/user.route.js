@@ -15,6 +15,7 @@ import {
   changeCurrentUserPassword,
   updateUserProfile,
   updateUserAvatar,
+  resetPassword,
 } from "../controllers/user.controller.js";
 
 const user_route = Router();
@@ -55,6 +56,9 @@ user_route.post("/refresh-token", refreshAccessToken);
 //Change Password
 user_route.post("/change-password", verifyJWT, changeCurrentUserPassword);
 
+//Change Avatar
 user_route.patch("/change-avatar", verifyJWT, upload('products').single("avatar"), updateUserAvatar);
 
+//Reset Password
+user_route.put("/reset-password/:reset_token", resetPassword);
 export default user_route;  

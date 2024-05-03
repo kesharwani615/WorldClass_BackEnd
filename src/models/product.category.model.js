@@ -8,6 +8,14 @@ const prodCategorySchema = new Schema(
       trim: true,
       index: true,
     },
+    categoryDescription: {
+      type: String,
+      required: true,
+    },
+    categoryImage: {
+      type: String,
+      required: true,
+    },
     isActive: {
       type: Boolean,
       default: true,

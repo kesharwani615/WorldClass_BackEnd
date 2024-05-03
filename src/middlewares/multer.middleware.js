@@ -20,11 +20,20 @@ export const upload = (folderName) => {
 
         filename: async (req, file, cb) => {
           const extension = path.extname(file.originalname);
-          const fileName = path.basename(
-            file.originalname + Date.now(),
-            extension
-          );
-          cb(null, `${fileName}${extension}`);
+          const fileNameWithoutExtension = path.basename(file.originalname, extension);
+
+          const currentDate = new Date();
+          const year = currentDate.getFullYear();
+          const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+          const day = String(currentDate.getDate()).padStart(2, '0');
+          const hours = String(currentDate.getHours()).padStart(2, '0');
+          const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+          const seconds = String(currentDate.getSeconds()).padStart(2, '0');
+
+          const timestamp = `${day}${month}${year}_${hours}${minutes}${seconds}`;
+
+          const fileName = `${fileNameWithoutExtension}_${timestamp}${extension}`;
+          cb(null, fileName);
         },
       }),
     });
