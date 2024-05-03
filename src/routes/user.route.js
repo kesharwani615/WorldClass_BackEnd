@@ -24,8 +24,7 @@ const user_route = Router();
 user_route.post("/register", upload('users').array("avatar", 1),  registerUser);
 
 //Update User
-user_route.patch("/update/:id",
-  upload('products').array({ name: "avatar", maxCount: 1 }),  updateUserProfile);
+user_route.patch("/update/:id", upload('users').array({ name: "avatar", maxCount: 1 }),  updateUserProfile);
 
 //Login User
 //user_route.post("/login", loginUser);
