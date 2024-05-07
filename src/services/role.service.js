@@ -7,7 +7,6 @@ import { apiError } from "../utils/apiError.js";
 const registerRole = async (roleDetail) => {
   //TODO: Register a new Role
   const { roleName } = roleDetail;
-
   //If role name not provided, throw error
   if (!roleName || roleName === "")
   {
@@ -45,23 +44,14 @@ const updateRole = async (roleId, roleDetail) => {
   }
 
   // Find the role by ID
-  const role = await Role.findOne({_id: roleId, isActive: true});
+  const role = await Role.findOne({_id: roleId});
 
   //If role not found in DB, throw error
   if (!role) {
     throw new apiError(404, "Role not found"); 
   }
+  const updatedRole = await role.$set(roleDetail).save()
 
-  const updatedRole = await Role.updateOne(
-    { _id: roleId },
-    { $set: roleDetail},
-    { new: true }
-  );
-
-  //If not updated, throw error
-  if (!updatedRole || updatedRole.matchedCount === 0) {
-    throw new apiError(404, "Role could not be updated"); 
-  }
   return updatedRole;
 };
 
@@ -119,6 +109,7 @@ const getAllActiveRoles = async () => {
 // Get all Active Roles
 const getAllRoles = async () => {
   //TODO: Get Active Roles
+  
   const roles = await Role.find({}).sort({ roleName: 1 });
   if (!roles) {
     throw new Error(400, "Role(s) not found");

@@ -24,6 +24,7 @@ const updateRole = async (req, res) => {
   //TODO: Update a existing Role
   try {
     const { body, params } = req;
+    
     const updateRoleResponse = await roleService.updateRole(
       params.id, body
     );

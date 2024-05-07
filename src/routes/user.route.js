@@ -33,7 +33,7 @@ user_route.patch("/update/:id", upload('users').array({ name: "avatar", maxCount
 user_route.get("/total-users", getAllUsersCount);
 
 //Get User Profile
-user_route.get("/profile/:userId", getUserProfile);
+user_route.get("/profile/:id", getUserProfile);
 
 //Change User status (isActive)
 user_route.patch('/update-status/:id', updateUserStatus);
