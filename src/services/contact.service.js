@@ -2,7 +2,7 @@ import { isValidObjectId } from "mongoose";
 import { validateEmail } from "../helpers/helper.methods.js";
 import { Contact } from "../models/contact.model.js";
 import { apiError } from "../utils/apiError.js";
-//import { sendEmail } from "../utils/send.email.js";
+import { sendEmail } from "../utils/send.email.js";
 
 // Register new contact
 const registerContact = async (contactDetails) => {
@@ -18,61 +18,63 @@ const registerContact = async (contactDetails) => {
       throw new apiError(400, "Provide valid email address");
     }
   
-    const newContact = await new Contact(contactDetails);
+    const newContact = new Contact(contactDetails);
     
     const savedContact = await newContact.save();
     if (!savedContact) {
       throw new apiError(400, "Something Went Wrong at the time of data saving");
     }
   
-    // Constructing the email message
-    // const emailMessage = `
-    // Hello,
+    // Constructing the email message for Admin
+    const adminMessage = `
+      Hello,
 
-    // You have received a new inquiry from your website:
+      <p>You have received a new inquiry from your website: </p>
 
-    // Name: ${conName}
-    // Email: ${conEmail}
-    // Phone Number: ${conPhoneNumber}
-    // Company Name: ${conCompanyName}
-    // Subject: ${conSubject}
-    // Message: ${conMessage}
+      <b>Name:</b> ${conName}<br>
+      <b>Email:</b> ${conEmail}<br>
+      <b>Phone Number:</b> ${conPhoneNumber}<br>
+      <b>Company Name:</b> ${conCompanyName}<br>
+      <b>Subject:</b> ${conSubject}<br>
+      <b>Message:</b> ${conMessage? conMessage: ''}<br><br>
 
-    // Regards,
-    // Your Website
-    // `;
+      <p>Regards,</p>
+      WorldClass GourmetFoods Pvt. Ltd.
+      `;
 
-    // // Sending the email
-    // const transporter = nodemailer.createTransport({
-    // service: 'gmail',
-    // auth: {
-    //     user: 'your_email@gmail.com',
-    //     pass: 'your_password'
-    // }
-    // });
+      //Send email to the Admin
+      await sendEmail(conEmail, conSubject, adminMessage);
+    
+      // Constructing the email message for User
+      const userSubject = "Thank you for contacting us!";
+      const userMessage = `Dear ${conName},
+      
+        <p>Thank you for reaching out to us through our contact form. We have received your message and will get back to you as soon as possible.</p>
+        <p>Here are the details you provided:</p>
 
-    // const mailOptions = {
-    // from: 'your_email@gmail.com',
-    // to: 'recipient_email@example.com',
-    // subject: 'New Website Inquiry',
-    // text: emailMessage
-    // };
+        <b>Name:</b> ${conName}<br>
+        <b>Email:</b> ${conEmail}<br>
+        <b>Phone Number:</b> ${conPhoneNumber}<br>
+        <b>Company Name:</b> ${conCompanyName}<br>
+        <b>Subject:</b> ${conSubject}<br>
+        <b>Message:</b> ${conMessage? conMessage: ''}<br><br>
+        
+        <p>We appreciate your interest in our [company/product/service]. Rest assured, your inquiry is important to us, and we will do our best to address it promptly.</p>
 
-    // transporter.sendMail(mailOptions, function(error, info){
-    // if (error) {
-    // console.error('Error occurred while sending email:', error);
-    // } else {
-    // console.log('Email sent:', info.response);
-    // }
-    // });
+        <p>If you have any further questions or concerns, feel free to reply to below contact details</p>
+        
+        <p>Best regards,</p>
 
-    // const subject = "you have raised your query";
-    // const mesgForUser = `<p>Thank you for ${firstName} ${lastName} contacting dagna de.</p>
-    //                         <p> we will work on that and get back to you soon!</p>`;
-  
-    // // Send the email for new contact user
-    // await sendEmail(email, subject, mesgForUser);
-  
+        Worldclass Gourmetfoods Pvt. Ltd.<br>
+        C20, 1st Floor, Industrial Area, Phase 1, Okhla,<br>
+        New Delhi - 110020, Delhi, India <br>
+        Phone: +91 11 40685109, +91 9971934258,<br> 
+               +91 9971935301, +91 9871592231<br>
+        Email: info@worldclassfoods.in<br>`
+
+        //Send email to the User
+        await sendEmail(conEmail, userSubject, userMessage);    
+   
     return savedContact;
   };
 

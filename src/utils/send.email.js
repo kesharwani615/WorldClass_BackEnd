@@ -1,33 +1,45 @@
-import dotEnv from "dotenv";
 import nodemailer from "nodemailer";
-dotEnv.config();
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  auth: {
-    user: 'mailto:crm201426@gmail.com',
-    pass: 'zzqpuncetujlrlqn',
-  },
-});
-
-const sendEmail = async () => {
+const sendEmail = (email, subject, data) => {
   try {
-    // send mail with defined transport object
-    let emailInfo = {
-      from: '"Svaak Software" mailto:crm201426@gmail.com', // sender address
-      // from:emailBody.email,
-      to: "asif@yopmail.com", // list of receivers
-      subject: "test", // Subject line
-      html: `<p>test </p>`
-    };
-   let mail = await transporter.sendMail(emailInfo);
-    console.log("send",mail);
-    return true;
-  }
-  catch (error) {
+    // create reusable transporter object using the default SMTP transport
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: process.env.EMAIL_PORT,
+      secure: true,
+      auth: {
+        user: process.env.ADMIN_EMAIL,
+        pass: process.env.ADMIN_PASSWORD,
+      },
+      tls: {
+        // Do not fail on invalid certs
+        rejectUnauthorized: false
+      }
+    });
+
+    const mailOptions = () => {
+      return {
+        from: process.env.FROM_EMAIL,
+        to: email,
+        subject: subject,
+        html: data,
+      };
+    };-
+
+    // Send email
+    transporter.sendMail(mailOptions(), (error, info) => {
+      if (error) {
+        console.log("err", error);
+        return error;
+      } else {
+        console.log("info", info);
+
+        return info;
+      }
+    });
+  } catch (error) {
     return error;
   }
-}
+};
 
-export {sendEmail};
+export { sendEmail };

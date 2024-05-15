@@ -4,6 +4,7 @@ import { ProductSubCategory } from "../models/product.sub.category.model.js";
 import { apiError } from "../utils/apiError.js";
 import fs from 'fs';
 import path from 'path';
+import { deleteImage } from "../helpers/helper.methods.js";
 
 // Get the directory path of the current module file
 let currentDir = path.dirname(new URL(import.meta.url).pathname).substring(1);
@@ -81,17 +82,18 @@ const updateProdCategory = async (body, prodCategoryId, prodCategoryImagePath) =
   //Remove existing product Category image if it exists
   if (prodCategoryImagePath) {
   const imagePath = path.join(currentDir, '..','..', prodCategory.categoryImage);
-
-  if (fs.existsSync(imagePath)) {
-    try {
-      fs.unlinkSync(imagePath);
-      console.log(`Removed existing product category image: ${imagePath}`);
-    } catch (err) {
-      console.error("Error occurred while deleting file:", err);
-    }
-    } else {
-      console.log("File does not exist:", imagePath);
-    }
+  
+  deleteImage(imagePath);
+  // if (fs.existsSync(imagePath)) {
+  //   try {
+  //     fs.unlinkSync(imagePath);
+  //     console.log(`Removed existing product category image: ${imagePath}`);
+  //   } catch (err) {
+  //     console.error("Error occurred while deleting file:", err);
+  //   }
+  //   } else {
+  //     console.log("File does not exist:", imagePath);
+  //   }
     prodCategory.categoryImage = prodCategoryImagePath;
   }
 
@@ -143,16 +145,17 @@ const deleteProdCategory = async (prodCategoryId) => {
    //Remove existing product Category image if it exists
     const imagePath = path.join(currentDir, '..','..', deletedProdCategory.categoryImage);
   
-  if (fs.existsSync(imagePath)) {
-    try {
-      fs.unlinkSync(imagePath);
-      console.log(`Removed existing product category image: ${imagePath}`);
-    } catch (err) {
-      console.error("Error occurred while deleting file:", err);
-    }
-    } else {
-      console.log("File does not exist:", imagePath);
-    }
+    deleteImage(imagePath)
+  // if (fs.existsSync(imagePath)) {
+  //   try {
+  //     fs.unlinkSync(imagePath);
+  //     console.log(`Removed existing product category image: ${imagePath}`);
+  //   } catch (err) {
+  //     console.error("Error occurred while deleting file:", err);
+  //   }
+  //   } else {
+  //     console.log("File does not exist:", imagePath);
+  //   }
 
   return deletedProdCategory;
 };
