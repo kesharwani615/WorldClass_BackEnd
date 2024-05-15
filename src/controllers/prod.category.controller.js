@@ -29,7 +29,7 @@ const updateProdCategory = asyncHandler(async (req, res) => {
   try {
     const { body, params, files } = req;
     console.log("files", files);
-    const response =  await prodCategoryService.updateProdCategory(body, params.id, files[0].path)
+    const response =  await prodCategoryService.updateProdCategory(body, params.id, files?.[0]?.path)
     return res
       .status(200).json(
         new apiResponse(200, response, "User's info updated successfully", true));

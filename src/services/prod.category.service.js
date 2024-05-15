@@ -70,7 +70,7 @@ const updateProdCategory = async (body, prodCategoryId, prodCategoryImagePath) =
   }
 
   // Find the product category by ID
-  const prodCategory = await ProductCategory.findOne({_id: prodCategoryId, isActive: true});
+  const prodCategory = await ProductCategory.findOne({_id: prodCategoryId});
 
   console.log("Fetching existing prodCategory", prodCategory);
 
