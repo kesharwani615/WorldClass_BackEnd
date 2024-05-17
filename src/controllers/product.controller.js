@@ -54,9 +54,10 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-const getProducts = asyncHandler(async (req, res) => {
+//Get All Products
+const getAllProducts = asyncHandler(async (req, res) => {
   try {
-    const response = await productService.getProducts();
+    const response = await productService.getAllProducts();
     return res
     .status(200).json(
       new apiResponse(200, response, "Product(s) fetched successfully"));
@@ -68,9 +69,26 @@ const getProducts = asyncHandler(async (req, res) => {
   };
 });
 
+//Get product by Id
+const getProductById = asyncHandler(async (req, res) => {
+  try {
+    const { params } = req;
+    const response = await productService.getProductById(params.id);
+    return res
+      .status(200).json(
+        new apiResponse(200, response, "Product fetched successfully"));
+  } catch (error) {
+    return res
+      .status(500).json(
+        new apiError({ statusCode: error.statusCode, message: error.message })
+      );
+  }
+});
+
 export { 
   registerProduct,
   updateProduct,
   deleteProduct,
-  getProducts
+  getAllProducts,
+  getProductById
  };

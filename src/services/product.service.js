@@ -115,9 +115,20 @@ const deleteProduct = async (productId) => {
   return deletedProduct;
 };
 
+// Get all Products
+const getAllProducts = async () => {
+  //TODO: Get Products
+  
+  const products = await Product.find({}).sort({ productName: 1 });
+  if (!products) {
+    throw new Error(400, "Product(s) not found");
+  }
+  return products;
+};
 
 export default {
     registerProduct,
     updateProduct,
     deleteProduct,
+    getAllProducts,
 };
