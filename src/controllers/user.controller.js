@@ -1,6 +1,8 @@
 import userService from "../services/user.service.js"
 import { handleResponse, handleError } from "../helpers/helper.methods.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { apiError } from "../utils/apiError.js";
+import { apiResponse } from "../utils/apiResponse.js";
 
 //Register User
 const registerUser = asyncHandler(async (req, res) => {
@@ -26,7 +28,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   try {
     const { body, params, files } = req;
     const response = files?.avatar
-      ? await userService.updateUserInfo(body, params.id, files.avatar)
+      ? await userService.updateUserInfo(body, params.id, files?.avatar)
       : await userService.updateUserInfo(body, params.id);
       return handleResponse(res, 202, response, "User's info updated successfully");
     } catch (error) {
@@ -222,6 +224,28 @@ const forgetPassword = asyncHandler(async (req, res) => {
   }
 });
 
+// dashboard
+const fetchDashboard = asyncHandler( async (req, res) => {
+  //TODO: Reset user's password
+  try {
+    const response = await userService.fetchDashboard();
+    return handleResponse(res, 200, response, "fetch successfully");
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
+//Get All Users
+const fetchAllUsers = asyncHandler(async (req, res) => {
+  //TODO: Get all Users from the DB
+  try {
+    const response = await userService.fetchAllUsers();
+    return handleResponse(res, 200, response, "Users fetch successfully");
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
 export {
   registerUser,
   updateUserProfile,
@@ -237,4 +261,6 @@ export {
   updateUserAvatar,
   resetPassword,
   forgetPassword,
+  fetchDashboard,
+  fetchAllUsers
 };

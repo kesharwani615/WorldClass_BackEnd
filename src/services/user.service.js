@@ -7,11 +7,17 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import Jwt from "jsonwebtoken";
 import fs from "fs";
 import  {sendEmail}  from "../utils/send.email.js";
+import path  from 'path';
 
 // Import the email content object from the specified file for email content access
 import {
   emailContentInfo,
 } from "../utils/emailTemplates/welcomeEmail.js";
+import { Product } from "../models/product.model.js";
+import { Contact } from "../models/contact.model.js";
+import { ProductCategory } from "../models/product.category.model.js";
+import { ProductSubCategory } from "../models/product.sub.category.model.js";
+import { Role } from "../models/role.model.js";
 
 
 //Generate Access and Refresh Tokens
@@ -204,7 +210,10 @@ const updateUserStatus = async (body, userId) => {
   if (!updatedUserStatus) {
     throw new apiError(400, "Status could not be changed"); 
   }else{
-    return updateUserStatus
+    return {
+      _id:userId,
+      isActive: body.isActive
+    }
   }
 };
 
@@ -219,11 +228,7 @@ const deleteUser = async (userId) => {
   if (!findUser) {
     throw new apiError(400, "User not found"); 
   }
-  const userDeletedOnCloudinary = await deleteOnCloudinary(findUser.avatar[0].public_id, "image");
-
-  if(!userDeletedOnCloudinary){
-    throw new apiError(400, "User could not deleted on cloudinary"); 
-  }
+  
 
   const deletedUser = await User.findByIdAndDelete(userId);
   
@@ -514,6 +519,44 @@ const forgetPassword = async (forgetDetails) => {
   return { resetMessageAndLink }
 }
 
+// Dashboard
+const fetchDashboard = async () => {
+
+  try {
+    const user = await User.countDocuments();
+    const roles = await Role.countDocuments();
+    const product = await Product.countDocuments();
+    const contacts = await Contact.countDocuments();
+    const productCategory = await ProductCategory.countDocuments();
+    const productSubCategory = await ProductSubCategory.countDocuments();
+
+    return {
+      user,
+      roles,
+      product,
+      contacts,
+      productCategory,
+      productSubCategory
+    }
+
+  } catch (error) {
+    
+  }
+  
+}
+
+
+//Get All User's list
+const fetchAllUsers = async () => {
+  //TODO: Get All Users Count
+  const users = await User.find();
+  if (!users.length) {
+    throw new apiError(404, "No users found");
+  }
+
+  return users;
+};
+
 export default {
   registerUser,
   updateUserProfile,
@@ -529,4 +572,6 @@ export default {
   updateUserAvatar,
   resetPassword,
   forgetPassword,
+  fetchDashboard,
+  fetchAllUsers
 }

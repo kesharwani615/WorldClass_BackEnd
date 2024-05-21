@@ -16,6 +16,8 @@ import {
   updateUserProfile,
   updateUserAvatar,
   resetPassword,
+  fetchDashboard,
+  fetchAllUsers,
 } from "../controllers/user.controller.js";
 
 const userRouter = Router();
@@ -60,4 +62,7 @@ userRouter.patch("/change-avatar", verifyJWT, upload('products').single("avatar"
 
 //Reset Password
 userRouter.put("/reset-password/:reset_token", resetPassword);
+//Get Users count
+userRouter.get("/all-users", fetchAllUsers);
+userRouter.get("/dashboard", fetchDashboard);
 export default userRouter;  
