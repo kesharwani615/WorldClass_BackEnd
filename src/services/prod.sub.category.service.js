@@ -10,15 +10,12 @@ import { deleteImage } from "../helpers/helper.methods.js";
 let currentDir = path.dirname(new URL(import.meta.url).pathname).substring(1);
 currentDir = currentDir.replace(/%20/g, ' ')
 
-//Register Sub Product Category
+//Register a new Product Sub Category
 const registerProdSubCategory = async (body, prodSubCategoryImagePath) => {
-  //TODO: Register a new Product Sub Category
-
   if (!prodSubCategoryImagePath.length) {
     throw new apiError(400, "Product sub category image is required");
   }
 
-  //destructure the body
   const { categoryId, subCategoryName, subCategoryDescription } = body;
   if (
     [categoryId, subCategoryName].some((field) => field?.trim() === "")
@@ -40,6 +37,7 @@ const registerProdSubCategory = async (body, prodSubCategoryImagePath) => {
   });
 
   if (!prodSubCategory) {
+    deleteImage(prodSubCategoryImagePath)
     fs.unlink(prodSubCategoryImagePath, (err) => {
       if (err) {
         console.error("Error deleting file:", err);
@@ -49,7 +47,10 @@ const registerProdSubCategory = async (body, prodSubCategoryImagePath) => {
     throw new apiError(500, "Something went wrong while registering the product sub category");
   }
 
-  return prodSubCategory;
+  const prodSubCategoryResponse = await ProductSubCategory.findById({_id:prodSubCategory._id}).populate({path:"categoryId"})
+
+  return prodSubCategoryResponse;
+  
 };
 
 //Update Product Category
@@ -70,7 +71,7 @@ const updateProductSubCategory = async (body, prodSubCategoryId, prodSubCategory
   }
 
   // Find the product sub category by ID
-  const prodSubCategory = await ProductSubCategory.findOne({_id: prodSubCategoryId, isActive: true});
+  const prodSubCategory = await ProductSubCategory.findOne({_id: prodSubCategoryId});
 
   //If prodSubCategory not found, throw error
   if(!prodSubCategory) {
@@ -90,9 +91,9 @@ const updateProductSubCategory = async (body, prodSubCategoryId, prodSubCategory
   // Save the changes to the sub product category document
   const updateSubProdCategory = await prodSubCategory.save();
 
-  console.log("Updated Product Category", updateSubProdCategory);
+  const updateSubCategoryResponse = await ProductSubCategory.findById({_id:updateSubProdCategory._id}).populate({path:"categoryId"})
 
-  return updateSubProdCategory;
+  return updateSubCategoryResponse;
 }
 
 //Delete product sub category
@@ -128,7 +129,7 @@ const deleteProductSubCategory = async (productSubCategoryId) => {
 const getAllSubProdCategories = async () => {
   //TODO: Get All Sub Product Categories
   
-  const productSubCategories = await ProductSubCategory.find({}).sort({ subCategoryName: 1 });
+  const productSubCategories = await ProductSubCategory.find({}).populate({path:"categoryId"}).sort({ subCategoryName: 1 });
   if (!productSubCategories) {
     throw new Error(400, "Product Sub Category(ies) not found");
   }
@@ -142,7 +143,7 @@ const getProductSubCategory = async (prodSubCategoryId) => {
     throw new apiError(400, "Invalid or prodSubCategoryId is missing"); 
   }
 
-  const prodSubCategory = await ProductSubCategory.findOne({ _id: prodSubCategoryId });
+  const prodSubCategory = await ProductSubCategory.findOne({ _id: prodSubCategoryId }).populate({path:"categoryId"});
   if (!prodSubCategory) {
     throw new apiError(400, "Product sub category not found"); 
   }else{

@@ -23,26 +23,26 @@ app.use(express.static(path.resolve('./')));
 app.use(cookieParser());
 
 //routes imports
-import user_route from "./routes/user.route.js";
-import role_route from "./routes/role.route.js";
-import category_route from "./routes/prod.category.route.js";
-import sub_category_route from "./routes/prod.sub.category.route.js";
-import product_route from "./routes/product.route.js";
-import contact_route from "./routes/contact.route.js";
+import userRouter from "./routes/user.route.js";
+import roleRoute from "./routes/role.route.js";
+import categoryRouter from "./routes/prod.category.route.js";
+import subCategoryRouter from "./routes/prod.sub.category.route.js";
+import productRouter from "./routes/product.route.js";
+import contactRouter from "./routes/contact.route.js";
 
 //Routes declaration
 //User route
-app.use("/api/v1/user", user_route);
+app.use("/api/v1/user", userRouter);
 //Role route
-app.use("/api/v1/role", role_route);
+app.use("/api/v1/role", roleRoute);
 //Product Category route
-app.use("/api/v1/category", category_route);
+app.use("/api/v1/category", categoryRouter);
 //Product Sub Category route
-app.use("/api/v1/sub_category", sub_category_route);
+app.use("/api/v1/sub_category", subCategoryRouter);
 //Product route
-app.use("/api/v1/product", product_route);
+app.use("/api/v1/product", productRouter);
 //Contact route
-app.use("/api/v1/contact", contact_route);
+app.use("/api/v1/contact", contactRouter);
 
 //http://localhost:8000/api/v1/users/register
 

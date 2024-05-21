@@ -1,6 +1,5 @@
 import productService from "../services/product.service.js";
-import { apiResponse } from "../utils/apiResponse.js";
-import { apiError } from "../utils/apiError.js";
+import { handleResponse, handleError } from "../helpers/helper.methods.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 //Register Product
@@ -10,14 +9,9 @@ const registerProduct = asyncHandler(async (req, res) => {
     const { body, files } = req;
     // Extract product details like product Name, Description etc
     const response = await productService.registerProduct(body, files[0].path);
-
-    return res
-      .status(201).json(
-        new apiResponse(201, response, "Product registered successfully" ));
+    return handleResponse(res, 201, response, "Product registered successfully");
   } catch (error) {
-    return res
-      .status(500).json(
-        new apiError({ statusCode: error.statusCode, message: error.message }));
+    return handleError(res, error);
   }
 });
 
@@ -26,15 +20,10 @@ const updateProduct = asyncHandler(async (req, res) => {
   //TODO: Update Product details
   try {
     const { body, params, files } = req;
-    const response =  await productService.updateProduct(body, params.id, files[0].path)
-    return res
-      .status(200).json(
-        new apiResponse(200, response, "Product details updated successfully", true));
+    const response =  await productService.updateProduct(body, params.id, files?.[0]?.path)
+    return handleResponse(res, 202, response, "Product updated successfully");
   } catch (error) {
-    // Send error response if any error occurs
-    return res
-      .status(500).json(
-        new apiError({ statusCode: error.statusCode, message: error.message }));
+    return handleError(res, error);
   }
 });
 
@@ -44,13 +33,9 @@ const deleteProduct = async (req, res) => {
   try {
     const { params } = req;
     const response = await productService.deleteProduct( params.id );
-    return res.status(200)
-      .json(new apiResponse(200, response, "Product deleted successfully"));
-    
+    return handleResponse(res, 200, response, "Product deleted successfully");
   } catch (error) {
-    return res.status(500)
-    .json(new apiError({ statusCode: error.statusCode, message: error.message })
-    );
+    return handleError(res, error);
   }
 };
 
@@ -58,15 +43,10 @@ const deleteProduct = async (req, res) => {
 const getAllProducts = asyncHandler(async (req, res) => {
   try {
     const response = await productService.getAllProducts();
-    return res
-    .status(200).json(
-      new apiResponse(200, response, "Product(s) fetched successfully"));
+    return handleResponse(res, 200, response, "Product(s) fetched successfully");
   } catch (error) {
-    return res
-    .status(500).json(
-      new apiError({ statusCode: error.statusCode, message: error.message })
-    );
-  };
+    return handleError(res, error);
+  }
 });
 
 //Get product by Id
@@ -74,14 +54,9 @@ const getProductById = asyncHandler(async (req, res) => {
   try {
     const { params } = req;
     const response = await productService.getProductById(params.id);
-    return res
-      .status(200).json(
-        new apiResponse(200, response, "Product fetched successfully"));
+    return handleResponse(res, 200, response, "Product fetched successfully");
   } catch (error) {
-    return res
-      .status(500).json(
-        new apiError({ statusCode: error.statusCode, message: error.message })
-      );
+    return handleError(res, error);
   }
 });
 
@@ -90,5 +65,6 @@ export {
   updateProduct,
   deleteProduct,
   getAllProducts,
-  getProductById
+  getProductById,
+
  };

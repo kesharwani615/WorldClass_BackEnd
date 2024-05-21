@@ -1,41 +1,21 @@
 import userService from "../services/user.service.js"
-import { apiResponse } from "../utils/apiResponse.js";
-import { apiError } from "../utils/apiError.js";
+import { handleResponse, handleError } from "../helpers/helper.methods.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 //Register User
 const registerUser = asyncHandler(async (req, res) => {
-  //TODO: Register a new User
-
   try {
-    // Extract user details like fullName, email
     const userDetails = req.body;
-    
-    // Extract avatarLocalPath
     const avatarLocalPath = req.files[0].path;
-
-    // Register the user with the provided data
-    const userResponse = await userService.registerUser(
-      userDetails,
-      avatarLocalPath
-    );
-
-    return res
-      .status(201).json(
-        new apiResponse(201, userResponse, "User registered Successfully."));
-  } catch (error) {
-    // Check if the error is due to undefined properties and handle it accordingly
-    if (error.message.includes("Cannot read properties of undefined")) {
-      return res
-        .status(400).json(
-          new apiError({ message: "Invalid request. Please provide files." }));
+    
+    if (!avatarLocalPath) {
+      return res.status(400).json(new apiError({ message: "Invalid request. Please provide files." }));
     }
-    // Handle errors and return an appropriate error response
-    return res
-      .status(500)
-      .json(
-        new apiError({ statusCode: error.statusCode, message: error.message })
-      );
+   
+    const userResponse = await userService.registerUser(userDetails, avatarLocalPath);
+    return res.status(201).json(new apiResponse(201, userResponse, "User registered successfully."));
+  } catch (error) {
+    return res.status(500).json(new apiError({ statusCode: error.statusCode, message: error.message }));
   }
 });
 
@@ -48,15 +28,10 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     const response = files?.avatar
       ? await userService.updateUserInfo(body, params.id, files.avatar)
       : await userService.updateUserInfo(body, params.id);
-    return res
-      .status(200).json(
-        new apiResponse(200, response, "User's info updated successfully", true));
-  } catch (error) {
-    // Send error response if any error occurs
-    return res
-      .status(500).json(
-        new apiError({ statusCode: error.statusCode, message: error.message }));
-  }
+      return handleResponse(res, 202, response, "User's info updated successfully");
+    } catch (error) {
+      return handleError(res, error);
+    }
 });
 
 //Get All Users
@@ -64,31 +39,20 @@ const getAllUsersCount = asyncHandler(async (req, res) => {
   //TODO: Get all Users from the DB
   try {
     const response = await userService.getAllUsersCount();
-    return res
-      .status(200)
-      .json(new apiResponse(200, response, "All users fetched successfully"));
+    return handleResponse(res, 200, response, "Users count got successfully");
   } catch (error) {
-    return res
-      .status(500)
-      .json(
-        new apiError({ statusCode: error.statusCode, message: error.message })
-      );
+    return handleError(res, error);
   }
 });
 
 const getUserProfile = asyncHandler(async (req, res) => {
   const { params } = req;
   try {
-    const userProfileResponse = await userService.getUserProfile(params.id);
-    console.log("userProfileResponse: ", userProfileResponse);
-    return res
-      .status(200).json(
-        new apiResponse(200, userProfileResponse, "User Profile fetched successfully"));
+    const response = await userService.getUserProfile(params.id);
+    console.log("userProfileResponse: ", response);
+    return handleResponse(res, 200, response, "Users profile fetched successfully");
   } catch (error) {
-    return res
-      .status(500).json(
-        new apiError({ statusCode: error.statusCode, message: error.message })
-      );
+    return handleError(res, error);
   }
 });
 
@@ -99,15 +63,9 @@ const updateUserStatus = asyncHandler(async (req, res) => {
   const { body, params } = req;
   try {
     const response = await userService.updateUserStatus(body, params.id);
-    return res
-      .status(200)
-      .json(new apiResponse(200, response, "User status updated successfully"));
+    return handleResponse(res, 202, response, "User's status updated successfully");
   } catch (error) {
-    return res
-      .status(500)
-      .json(
-        new apiError({ statusCode: error.statusCode, message: error.message })
-      );
+    return handleError(res, error);
   }
 });
 
@@ -118,15 +76,9 @@ const deleteUser = asyncHandler(async (req, res) => {
   const { params } = req;
   try {
     const response = await userService.deleteUser(params.id);
-    return res
-      .status(200)
-      .json(new apiResponse(200, response, "User deleted successfully"));
+    return handleResponse(res, 200, response, "User deleted successfully");
   } catch (error) {
-    return res
-      .status(500)
-      .json(
-        new apiError({ statusCode: error.statusCode, message: error.message })
-      );
+    return handleError(res, error);
   }
 });
 
@@ -136,26 +88,18 @@ const getSearchedUsers = asyncHandler(async (req, res) => {
   try {
     const allUserResponse = await userService.getSearchedUsers(req.query);
     if(allUserResponse.length){
-      return res.status(200)
-      .json(
-        new apiResponse(200, allUserResponse, "User searched successfully"));
+      return handleResponse(res, 202, response, "User searched successfully");
     }else{
-      return res.status(401)
-      .json(
-        new apiResponse(401, allUserResponse, "User not found"));
+      return handleResponse(res, 202, response, "User not found");
     }
     
   } catch (error) {
-    return res.status(500)
-      .json(
-        new apiError({ statusCode: error.statusCode, message: error.message }));
+    return handleError(res, error);
   }
 });
 
 //Login User
 const loginUser = asyncHandler(async (req, res) => {
-  //TODO: Login User
-  // req.body - data
   try {
     const { loggedInUser, accessToken, refreshToken } =  await userService.loginUser(req.body);
 
@@ -177,29 +121,20 @@ const loginUser = asyncHandler(async (req, res) => {
 
 //Logout User
 const logoutUser = asyncHandler(async (req, res) => {
-  //TODO: Logout User
   try {
     await userService.logoutUser(req.user._id);
-
-    // Set cookie options
-    const options = {
-      httpOnly: true,
-      secure: true,
-    };
+    const options = {httpOnly: true, secure: true};
     res.clearCookie("accessToken", options);
     res.clearCookie("refreshToken", options);
-
-    return res.status(200).json(new apiResponse(200, {}, "User logged Out"));
+    return handleResponse(res, 200, {}, "User logged out successfully");
   } catch (error) {
-    return res.status(500)
-      .json(new apiError({ statusCode: error.statusCode, message: error.message })
-      );
+    return handleError(res, error);
   }
+
 });
 
 //Refresh Access Token
 const refreshAccessToken = asyncHandler(async (req, res) => {
-  //TODO: Refresh Access Token
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
 
@@ -245,14 +180,11 @@ const changeCurrentUserPassword = asyncHandler(async(req, res)=>{
 
   try {
     const response = await userService.changeCurrentUserPassword(userId, oldPassword, newPassword);
-    
-    return res.status(200)
-    .json(new apiResponse(200, response, "Password changed successfully"));
+    return handleResponse(res, 200, response, "Password changed successfully");
   } catch (error) {
-    return res.status(500)
-      .json(new apiError({ statusCode: error.statusCode, message: error.message })
-      );
+    return handleError(res, error);
   }
+  
 });
 
 //Update user avatar
@@ -262,43 +194,33 @@ const updateUserAvatar = asyncHandler(async(req, res)=>{
   
   try {
     const response = await userService.updateUserAvatar(userId, req.file);
-    
-    return res.status(200)
-    .json(new apiResponse(200, response, "Avatar Image uploaded successfully"));
+    return handleResponse(res, 202, response, "Avatar Image uploaded successfully");
   } catch (error) {
-    return res.status(500)
-      .json(new apiError({ statusCode: error.statusCode, message: error.message })
-      );
+    return handleError(res, error);
   }
+
 });
 
 // Reset the user password
 const resetPassword = asyncHandler( async (req, res) => {
   //TODO: Reset user's password
   try {
-    const resetPasswordResponse = await userService.resetPassword(req.params.reset_token, req.body.newPassword);
-    return res.status(200).json
-    ( new apiResponse(200, resetPasswordResponse, "Password has been reset successfully"))
+    const response = await userService.resetPassword(req.params.reset_token, req.body.newPassword);
+    return handleResponse(res, 202, response, "Password has been reset successfully");
   } catch (error) {
-    return res.status(500).json
-    (new apiError({ statusCode: error.statusCode, message: error.message}));
+    return handleError(res, error);
   }
-})
+});
 
 // Forget the user password
 const forgetPassword = asyncHandler(async (req, res) => {
   try {
-    const forgetPasswordResponse = await userService.forgetPassword(req.body);
-      
-     return res.status(200).json( new apiResponse(200, forgetPasswordResponse, "Link has been sent in your email"))
-    
+    const response = await userService.forgetPassword(req.body); 
+    return handleResponse(res, 202, response, "Link has been sent in your email");
   } catch (error) {
-    return res.status(500)
-      .json(new apiError({ statusCode: error.statusCode, message: error.message })
-      );
+    return handleError(res, error);
   }
-
-})
+});
 
 export {
   registerUser,

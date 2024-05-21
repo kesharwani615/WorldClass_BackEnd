@@ -1,34 +1,26 @@
-import { isValidObjectId } from "mongoose";
 import { ProductCategory } from "../models/product.category.model.js";
 import { ProductSubCategory } from "../models/product.sub.category.model.js";
+import { deleteImage, validateObjectId } from "../helpers/helper.methods.js";
 import { apiError } from "../utils/apiError.js";
 import fs from 'fs';
 import path from 'path';
-import { deleteImage } from "../helpers/helper.methods.js";
 
 // Get the directory path of the current module file
 let currentDir = path.dirname(new URL(import.meta.url).pathname).substring(1);
 currentDir = currentDir.replace(/%20/g, ' ')
 
-//Register Product Category
+//Register a new Product Category
 const registerProdCategory = async (body, prodCategoryImagePath) => {
-  //TODO: Register a new Product Category
-
   if (!prodCategoryImagePath || !prodCategoryImagePath.length) {
     throw new apiError(400, "Product category image is required");
   }
 
-  //destructure the body
   const { categoryName, categoryDescription } = body;
-
-  if (
-    [categoryName, categoryDescription].some((field) => field?.trim() === "")
-  ) {
+  if ([categoryName, categoryDescription].some((field) => field?.trim() === "")) {
     throw new apiError(400, "All fields are required");
   }
 
   const prodCategoryExists = await ProductCategory.findOne({ categoryName });
- 
   if (prodCategoryExists) {
     throw new apiError(409, "Product category name is already exists.");
   }
@@ -40,12 +32,7 @@ const registerProdCategory = async (body, prodCategoryImagePath) => {
   });
 
   if (!prodCategory) {
-    fs.unlink(prodCategoryImagePath, (err) => {
-      if (err) {
-        console.error("Error deleting file:", err);
-        return;
-      }
-    });
+    deleteImage(prodCategoryImagePath)
     throw new apiError(500, "Something went wrong while registering the product category");
   }
 
@@ -55,63 +42,31 @@ const registerProdCategory = async (body, prodCategoryImagePath) => {
 //Update Product Category
 const updateProdCategory = async (body, prodCategoryId, prodCategoryImagePath) => {
 
-  // Validate prodCategoryId
-  if(!isValidObjectId(prodCategoryId)) {
-    throw new apiError(400, "Invalid product category ID");
-  }
-  
-  //destructure the body
+  validateObjectId(prodCategoryId, "Invalid product category ID")
+ 
   const { categoryName, categoryDescription } = body;
-
-  if (
-    [categoryName, categoryDescription].some((field) => field?.trim() === "")
-  ) {
+  if ([categoryName, categoryDescription].some((field) => field?.trim() === "")) {
     throw new apiError(400, "All fields are required");
   }
 
-  // Find the product category by ID
-  const prodCategory = await ProductCategory.findOne({_id: prodCategoryId});
-
-  console.log("Fetching existing prodCategory", prodCategory);
-
-  //If prodCategory not found, throw error
+  const prodCategory = await ProductCategory.findById(prodCategoryId);
   if(!prodCategory) {
     throw new apiError(404, "Product Category Not Found");
   }
   
-  //Remove existing product Category image if it exists
   if (prodCategoryImagePath) {
-  const imagePath = path.join(currentDir, '..','..', prodCategory.categoryImage);
-  
-  deleteImage(imagePath);
-  // if (fs.existsSync(imagePath)) {
-  //   try {
-  //     fs.unlinkSync(imagePath);
-  //     console.log(`Removed existing product category image: ${imagePath}`);
-  //   } catch (err) {
-  //     console.error("Error occurred while deleting file:", err);
-  //   }
-  //   } else {
-  //     console.log("File does not exist:", imagePath);
-  //   }
+    deleteImage(path.join(currentDir, '..','..', prodCategory.categoryImage));
     prodCategory.categoryImage = prodCategoryImagePath;
   }
 
-  // Update other product category details
   prodCategory.set(body);
-
-  // Save the changes to the blog document
   const updateProdCategory = await prodCategory.save();
-
-  console.log("Updated Product Category", updateProdCategory);
 
   return updateProdCategory;
 }
 
 // Get all Product Categories
 const getAllProdCategories = async () => {
-  //TODO: Get Product Categories
-  
   const prodCategories = await ProductCategory.find({}).sort({ categoryName: 1 });
   if (!prodCategories) {
     throw new Error(400, "Product Category(ies) not found");
@@ -121,58 +76,31 @@ const getAllProdCategories = async () => {
 
 //Delete product category
 const deleteProdCategory = async (prodCategoryId) => {
-  //TODO: Delete Product Category
+  validateObjectId(prodCategoryId, "Invalid product category Id")
 
-  //If product category not validate, throw error
-  if (!isValidObjectId(prodCategoryId)) {
-    throw new apiError(400, "Invalid product category ID"); 
-  }
-
-  //If product category exist in ProductSubCategory table, should not be deleted
-  const findProdCategoryInSubCategory = await ProductSubCategory.find({ categoryId: prodCategoryId });
-  
-  //If product category found, throw error
-  if (findProdCategoryInSubCategory.length) {
-    throw new apiError(400, "Referential Integrity (ProductSubCategory): Product Category can not be deleted"); 
+  const findProdCategoryInSubCategory = await ProductSubCategory.findById(prodCategoryId);
+  console.log("---------- ", findProdCategoryInSubCategory);
+  if (findProdCategoryInSubCategory) {
+    throw new apiError(400, "Product Category is referenced by a sub category and can not be deleted"); 
   }
   
   const deletedProdCategory = await ProductCategory.findByIdAndDelete(prodCategoryId );
-
   if (!deletedProdCategory) {
     throw new apiError(400, "Either Product Category could not be found or deleted"); 
   }
-
    //Remove existing product Category image if it exists
-    const imagePath = path.join(currentDir, '..','..', deletedProdCategory.categoryImage);
-  
-    deleteImage(imagePath)
-  // if (fs.existsSync(imagePath)) {
-  //   try {
-  //     fs.unlinkSync(imagePath);
-  //     console.log(`Removed existing product category image: ${imagePath}`);
-  //   } catch (err) {
-  //     console.error("Error occurred while deleting file:", err);
-  //   }
-  //   } else {
-  //     console.log("File does not exist:", imagePath);
-  //   }
-
-  return deletedProdCategory;
+    deleteImage(path.join(currentDir, '..','..', deletedProdCategory.categoryImage))
+    return deletedProdCategory;
 };
 
 // Get Product Category
 const getProdCategory = async (prodCategoryId) => {
-  //TODO: Get Product Category
-  if (!isValidObjectId(prodCategoryId) || !prodCategoryId?.trim()) {
-    throw new apiError(400, "Invalid or prodCategoryId is missing"); 
-  }
-
-  const prodCategory = await ProductCategory.findOne({ _id: prodCategoryId });
+  validateObjectId(prodCategoryId, "Invalid or prodCategoryId is missing")
+  const prodCategory = await ProductCategory.findById(prodCategoryId);
   if (!prodCategory) {
     throw new apiError(400, "Product category not found"); 
-  }else{
-    return prodCategory
   }
+  return prodCategory
 };
 
 export default {

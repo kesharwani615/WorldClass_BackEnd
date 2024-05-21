@@ -2,26 +2,22 @@ import { isValidObjectId } from "mongoose";
 import { Role } from "../models/role.model.js";
 import { User } from "../models/user.model.js";
 import { apiError } from "../utils/apiError.js";
+import { validateRoleDetails, validateObjectId } from "../helpers/helper.methods.js";
 
-//Register Role
+//Register a new Role
 const registerRole = async (roleDetail) => {
-  //TODO: Register a new Role
   const { roleName } = roleDetail;
-  //If role name not provided, throw error
-  if (!roleName || roleName === "")
+  if (!roleName || roleName.trim() === "")
   {
     throw new apiError(400, "Role name is required"); 
   }
 
-  // Check existing role
   const existingRole = await Role.findOne({roleName});
-
-  //If role name not provided, throw error
   if (existingRole) {
     throw new apiError(400, "Role name already exists"); 
   }
 
-  const newRole = await Role.create({ roleName  });
+  const newRole = await Role.create({ roleName });
   
   if (!newRole) {
     throw new apiError(500, "Something went wrong, while registering the Role");
@@ -29,52 +25,37 @@ const registerRole = async (roleDetail) => {
   return newRole;
 };
 
-//Update role
+//Update Role - Role name, ensure roleDetails is provided and is an object
 const updateRole = async (roleId, roleDetail) => {
-  // TODO: Update Role - Role name, 
-  // Ensure roleDetails is provided and is an object
+  
+  validateRoleDetails(roleDetail);
+  validateObjectId(roleId, "Invalid roleId");
 
-  if (!roleDetail || typeof roleDetail !== "object") {
-    throw new apiError(400, "Invalid role details"); 
-  }
-
-  //If roleId not validate, throw error
-  if (!isValidObjectId(roleId)) {
-    throw new apiError(400, "Invalid roleId"); 
-  }
-
-  // Find the role by ID
-  const role = await Role.findOne({_id: roleId});
-
-  //If role not found in DB, throw error
+  const role = await Role.findById(roleId);
   if (!role) {
     throw new apiError(404, "Role not found"); 
   }
-  const updatedRole = await role.$set(roleDetail).save()
+
+  Object.assign(role, roleDetail);
+  const updatedRole = await role.save();
 
   return updatedRole;
 };
 
 //Delete role
 const deleteRole = async (roleId) => {
-  //TODO: Delete Role
-
-  //If roleId not validate, throw error
-  if (!isValidObjectId(roleId)) {
-    throw new apiError(400, "Invalid roleId"); 
-  }
+ validateObjectId(roleId, "Invalid roleID");
 
   //If role exist in User table, should not be deleted
-  const findRoleInUser = await User.find({ roleId });
+  const userWithRole = await User.findOne({ roleId });
   //If role found, throw error
-  if (findRoleInUser.length) {
-    throw new apiError(400, "Referential Integrity (User): Role can not be deleted"); 
+  if (userWithRole) {
+    throw new apiError(400, "Role is referenced by a user and cannot be deleted"); 
   }
 
   const deletedRole = await Role.findByIdAndDelete(roleId );
-
   if (!deletedRole) {
-    throw new apiError(400, "Either Role could not be found or  deleted"); 
+    throw new apiError(400, "Role could not be found or deleted"); 
   }
 
   return deletedRole;
@@ -82,18 +63,14 @@ const deleteRole = async (roleId) => {
 
 // Get Role
 const getRole = async (roleId) => {
-  //TODO: Get Role
-  if (!isValidObjectId(roleId) || !roleId?.trim()) {
-    throw new apiError(400, "Invalid or roleId is missing"); 
-  }
+  validateObjectId(roleId, "Invalid or missing roleId");
 
-  const role = await Role.findOne({ _id: roleId });
-  console.log("----role: ", role);
+  const role = await Role.findById(roleId);
   if (!role) {
     throw new apiError(400, "Role not found"); 
-  }else{
-    return role
   }
+
+  return role
 };
 
 // Get all Active Roles

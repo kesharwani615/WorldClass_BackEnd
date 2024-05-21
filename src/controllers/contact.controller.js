@@ -1,88 +1,56 @@
 import contactService from "../services/contact.service.js";
-import { apiError } from "../utils/apiError.js";
-import { apiResponse } from "../utils/apiResponse.js";
+import { handleResponse, handleError } from "../helpers/helper.methods.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-//Register Contact
+//Register a new Contact
 const registerContact = asyncHandler(async (req, res) => {
-  //TODO: Register a new Contact
   try {
-    const contactResponse = await contactService.registerContact(req.body);
-    return res
-      .status(200).json(
-        new apiResponse(200, contactResponse, "Contact created successfully")
-      );
+    const response = await contactService.registerContact(req.body);
+    return handleResponse(res, 201, response, "Contact registered successfully");
   } catch (error) {
-    return res
-      .status(500).json(
-        new apiError({ statusCode: error.statusCode, message: error.message })
-      );
+    return handleError(res, error);
   }
 });
 
-//Delete role
+//Delete a contact
 const deleteContact = asyncHandler(async (req, res) => {
-  //TODO: Delete a Contact
   try {
     const { params } = req;
-    const contactResponse = await contactService.deleteContact(params.id);
-    return res
-      .status(200).json(
-        new apiResponse(200, contactResponse, "Contact Deleted Successfully"),
-      );
+    const response = await contactService.deleteContact(params.id);
+    return handleResponse(res, 200, response, "Contact deleted successfully");
   } catch (error) {
-    return res
-      .status(500).json(
-        new apiError({ statusCode: error.statusCode, message: error.message }),
-      );
+    return handleError(res, error);
   }
 });
 
+//Get contact by Id
 const getContact = asyncHandler(async (req, res) => {
   try {
     const { params } = req;
-    const roleResponse = await contactService.getContact(params.id);
-    return res
-      .status(200).json(
-        new apiResponse(200, roleResponse, "Contact fetched successfully"));
+    const response = await contactService.getContact(params.id);
+    return handleResponse(res, 200, response, "Contact fetched successfully");
   } catch (error) {
-    return res
-      .status(500).json(
-        new apiError({ statusCode: error.statusCode, message: error.message })
-      );
+    return handleError(res, error);
   }
 });
 
 //Get all Contacts
 const getAllContacts = asyncHandler(async (req, res) => {
   try {
-
-    const contactsResponse = await contactService.getAllContacts(req.query);
-    return res
-    .status(200).json(
-      new apiResponse(200, contactsResponse, "Contact(s) fetched successfully"));
+    const response = await contactService.getAllContacts(req.query);
+    return handleResponse(res, 200, response, "Contact(s) fetched successfully");
   } catch (error) {
-    return res
-    .status(500).json(
-      new apiError({ statusCode: error.statusCode, message: error.message })
-    );
-  };
+    return handleError(res, error);
+  }
 });
 
 //Get All Contacts
 const getAllContactsCount = asyncHandler(async (req, res) => {
-  //TODO: Get all Contacts from the DB
   try {
     const response = await contactService.getAllContactsCount();
-    return res
-      .status(200)
-      .json(new apiResponse(200, response, "All contacts fetched successfully"));
+    return handleResponse(res, 200, response, "All contact(s) fetched successfully");
   } catch (error) {
-    return res
-      .status(500)
-      .json(
-        new apiError({ statusCode: error.statusCode, message: error.message })
-      );
+    return handleError(res, error);
   }
 });
 

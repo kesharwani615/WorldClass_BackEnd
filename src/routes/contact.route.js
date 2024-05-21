@@ -7,17 +7,17 @@ import {
   registerContact,
 } from "../controllers/contact.controller.js";
 
-const contact_route = Router();
+const contactRouter = Router();
 
 // Register a new contact
-contact_route.post("/register", registerContact);
+contactRouter.post("/register", registerContact);
 // Delete contact
-contact_route.delete("/delete/:id", deleteContact);
+contactRouter.delete("/delete/:id", deleteContact);
 //Get contact by Id
-contact_route.get("/get-contact/:id", getContact);
+contactRouter.get("/get-contact/:id", getContact);
 //Get all contact
-contact_route.get("/get-all-contacts", getAllContacts);
+contactRouter.get("/get-all-contacts", getAllContacts);
 //Get contacts count
-contact_route.get("/total-contacts", getAllContactsCount);
+contactRouter.get("/total-contacts", getAllContactsCount);
 
-export default contact_route;  
+export default contactRouter;  

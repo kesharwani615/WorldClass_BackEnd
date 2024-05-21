@@ -1,107 +1,67 @@
 import roleService from "../services/role.service.js";
-import { apiResponse } from "../utils/apiResponse.js";
-import { apiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { handleResponse, handleError } from "../helpers/helper.methods.js";
 
 //Register Role
-const registerRole = async (req, res) => {
-  //TODO: Register a new User
+const registerRole = asyncHandler(async (req, res) => {
   try {
-    // Extract role details like roleName
     const roleDetails = req.body;
-    const registerRoleResponse = await roleService.registerRole(roleDetails);
-
-    return res.status(201).json(
-      new apiResponse(201, registerRoleResponse, "Role registered successfully"));
-
+    const response = await roleService.registerRole(roleDetails);
+    return handleResponse(res, 201, response, "Role registered successfully");
   } catch (error) {
-    return res.status(500).json(new apiError({ statusCode: error.statusCode, message: error.message }));
+    return handleError(res, error);
   }
-};
+});
 
 //Update Role
-const updateRole = async (req, res) => {
-  //TODO: Update a existing Role
+const updateRole = asyncHandler(async (req, res) => {
   try {
-    const { body, params } = req;
-    
-    const updateRoleResponse = await roleService.updateRole(
-      params.id, body
-    );
-
-    return res.status(202).json(
-      new apiResponse(200, updateRoleResponse, "Role updated successfully", true));
+    const { body, params } = req;    
+    const response = await roleService.updateRole(params.id, body);
+    return handleResponse(res, 202, response, "Role updated successfully");
   } catch (error) {
-    // Send error response if any error occurs
-    return res
-      .status(500).json(
-        new apiError({ statusCode: error.statusCode, message: error.message }));
+    return handleError(res, error);
   }
-};
+});
 
-//Delete role
-const deleteRole = async (req, res) => {
-  //TODO: Delete Role from DB, if its reference is not in other documents(tables)
+//Delete Role from DB, if its reference is not in other documents(tables)
+const deleteRole = asyncHandler(async (req, res) => {
   try {
     const { params } = req;
-    const deleteRoleResponse = await roleService.deleteRole( params.id );
-    return res
-      .status(200)
-      .json(new apiResponse(200, deleteRoleResponse, "Role deleted successfully"));
-    
+    const response = await roleService.deleteRole( params.id );
+    return handleResponse(res, 200, response, "Role deleted successfully");
   } catch (error) {
-    return res
-    .status(500)
-    .json(new apiError({ statusCode: error.statusCode, message: error.message })
-    );
-
+    return handleError(res, error);
   }
-};
+});
 
 const getRole = asyncHandler(async (req, res) => {
   try {
     const { params } = req;
-    const roleResponse = await roleService.getRole(params.id);
-    return res
-      .status(200).json(
-        new apiResponse(200, roleResponse, "Role fetched successfully"));
+    const response = await roleService.getRole(params.id);
+    return handleResponse(res, 200, response, "Role fetched successfully");
   } catch (error) {
-    return res
-      .status(500).json(
-        new apiError({ statusCode: error.statusCode, message: error.message })
-      );
+    return handleError(res, error);
   }
 });
 
 const getAllActiveRoles = asyncHandler(async (req, res) => {
   try {
-    const activeRolesResponse = await roleService.getAllActiveRoles();
-    return res
-    .status(200).json(
-      new apiResponse(200, activeRolesResponse, "Role(s) fetched successfully"));
+    const response = await roleService.getAllActiveRoles();    
+    return handleResponse(res, 200, response, "Role(s) fetched successfully");
   } catch (error) {
-    return res
-    .status(500).json(
-      new apiError({ statusCode: error.statusCode, message: error.message })
-    );
-  };
+    return handleError(res, error);
+  }
 });
 
 const getAllRoles = asyncHandler(async (req, res) => {
   try {
-    const rolesResponse = await roleService.getAllRoles();
-    return res
-    .status(200).json(
-      new apiResponse(200, rolesResponse, "Role(s) fetched successfully"));
+    const response = await roleService.getAllRoles();
+    return handleResponse(res, 200, response, "Role(s) fetched successfully");
   } catch (error) {
-    return res
-    .status(500).json(
-      new apiError({ statusCode: error.statusCode, message: error.message })
-    );
-  };
+    return handleError(res, error);
+  }
 });
-
-
 
 export {
   registerRole,

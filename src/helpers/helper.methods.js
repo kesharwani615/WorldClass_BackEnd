@@ -1,3 +1,6 @@
+import { apiResponse } from "../utils/apiResponse.js";
+import { apiError } from "../utils/apiError.js";
+import { isValidObjectId } from "mongoose";
 import fs from 'fs';
 
 // Password validation Method
@@ -22,7 +25,7 @@ const deleteImage = (imagePath) => {
   if (fs.existsSync(imagePath)) {
     try {
       fs.unlinkSync(imagePath);
-      console.log(`Removed existing product category image: ${imagePath}`);
+      console.log(`Removed existing image: ${imagePath}`);
     } catch (err) {
       console.error("Error occurred while deleting file:", err);
     }
@@ -32,7 +35,36 @@ const deleteImage = (imagePath) => {
   return;
 };
 
+// Helper function to handle responses
+const handleResponse = (res, statusCode, data, message) => {
+  return res.status(statusCode).json(new apiResponse(statusCode, data, message));
+};
+
+// Helper function to handle errors
+const handleError = (res, error) => {
+  return res.status(500).json(new apiError({ statusCode: error.statusCode, message: error.message }));
+};
+
+// Helper function to validate role details
+const validateRoleDetails = (roleDetail) => {
+  if (!roleDetail || typeof roleDetail !== "object") {
+    throw new apiError(400, "Invalid role details");
+  }
+};
+
+// Helper function to validate ObjectId
+const validateObjectId = (id, message) => {
+  if (!isValidObjectId(id) || !id?.trim()) {
+    throw new apiError(400, message);
+  }
+};
+
 export {  
   validatePassword, 
   validateEmail, 
-  deleteImage };
+  deleteImage,
+  handleResponse,
+  handleError,
+  validateRoleDetails,
+  validateObjectId
+};

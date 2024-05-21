@@ -73,7 +73,7 @@ const updateProduct = async (body, productId, productImagePath) => {
   }
 
   // Find the product by ID
-  const product = await Product.findOne({_id: productId, isActive: true});
+  const product = await Product.findOne({_id: productId});
 
   //If product not found, throw error
   if(!product) {
@@ -126,9 +126,20 @@ const getAllProducts = async () => {
   return products;
 };
 
+const getProductById = async (productId) => {
+  //TODO: Get Products
+  
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw new Error(400, "Product(s) not found");
+  }
+  return product;
+};
+
 export default {
     registerProduct,
     updateProduct,
     deleteProduct,
     getAllProducts,
+    getProductById,
 };
