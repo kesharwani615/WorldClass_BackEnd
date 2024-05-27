@@ -17,7 +17,6 @@ const prodSubCategorySchema = new Schema(
     },
     subCategoryImage: {
       type: String,
-      required: [true, "Sub Category Image is required"],
     },
     isActive: {
       type: Boolean,

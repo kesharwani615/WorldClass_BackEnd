@@ -51,11 +51,13 @@ const updateProdCategory = async (body, prodCategoryId, prodCategoryImagePath) =
 
   const prodCategory = await ProductCategory.findById(prodCategoryId);
   if(!prodCategory) {
+    if(prodCategoryImagePath){
+      deleteImage(prodCategoryImagePath);
+    }
     throw new apiError(404, "Product Category Not Found");
   }
   
-  if (prodCategoryImagePath) {
-    deleteImage(path.join(currentDir, '..','..', prodCategory.categoryImage));
+  if (prodCategoryImagePath) {    
     prodCategory.categoryImage = prodCategoryImagePath;
   }
 

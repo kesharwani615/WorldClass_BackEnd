@@ -1,7 +1,13 @@
 import { Router } from "express";
 import { upload } from "../middlewares/multer.middleware.js";
+import { 
+    deleteProduct, 
+    getProductById, 
+    getProducts, 
+    getProductsBySubCategory, 
+    registerProduct, 
+    updateProduct } from "../controllers/product.controller.js";
 
-import { deleteProduct, getAllProducts, getProductById, registerProduct, updateProduct } from "../controllers/product.controller.js";
 const productRouter = Router();
 
 // Register Product
@@ -14,9 +20,12 @@ productRouter.patch("/update/:id", upload('product').array("productImage", 1),  
 productRouter.delete("/delete/:id", deleteProduct);
 
 //Get Active Product
-productRouter.get("/get-all-products", getAllProducts);
+productRouter.get("/get-products", getProducts);
 
 //Get Product By Id
 productRouter.get("/get-product/:id", getProductById);
+
+//Get Active Product
+productRouter.get("/get-products-by-sub-category/:id", getProductsBySubCategory);
 
 export default productRouter;

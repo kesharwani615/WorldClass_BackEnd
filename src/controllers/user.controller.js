@@ -13,7 +13,6 @@ const registerUser = asyncHandler(async (req, res) => {
     if (!avatarLocalPath) {
       return res.status(400).json(new apiError({ message: "Invalid request. Please provide files." }));
     }
-   
     const userResponse = await userService.registerUser(userDetails, avatarLocalPath);
     return res.status(201).json(new apiResponse(201, userResponse, "User registered successfully."));
   } catch (error) {

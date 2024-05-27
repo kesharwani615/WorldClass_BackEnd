@@ -40,9 +40,9 @@ const deleteProduct = async (req, res) => {
 };
 
 //Get All Products
-const getAllProducts = asyncHandler(async (req, res) => {
+const getProducts = asyncHandler(async (req, res) => {
   try {
-    const response = await productService.getAllProducts();
+    const response = await productService.getProducts();
     return handleResponse(res, 200, response, "Product(s) fetched successfully");
   } catch (error) {
     return handleError(res, error);
@@ -60,11 +60,34 @@ const getProductById = asyncHandler(async (req, res) => {
   }
 });
 
+//Get All Products by Sub Category
+const getProductsBySubCategory = asyncHandler(async (req, res) => {
+  try {
+    const { params } = req;
+    const response = await productService.getProductsBySubCategory(params.id);
+    return handleResponse(res, 200, response, "Product(s) fetched successfully");
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
+//Get All Products by Sub Category
+const getProductsByCategorySubCategory = asyncHandler(async (req, res) => {
+  try {
+    const { params } = req;
+    const response = await productService.getProductsBySubCategory(params.id);
+    return handleResponse(res, 200, response, "Product(s) fetched successfully");
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
 export { 
   registerProduct,
   updateProduct,
   deleteProduct,
-  getAllProducts,
+  getProducts,
   getProductById,
-
+  getProductsBySubCategory,
+  getProductsByCategorySubCategory,
  };

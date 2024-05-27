@@ -5,6 +5,7 @@ import { apiError } from "../utils/apiError.js";
 import fs from 'fs';
 import path from 'path';
 import { deleteImage } from "../helpers/helper.methods.js";
+import { log } from "console";
 
 // Get the directory path of the current module file
 let currentDir = path.dirname(new URL(import.meta.url).pathname).substring(1);
@@ -99,8 +100,6 @@ const updateProduct = async (body, productId, productImagePath) => {
 
 //Delete Product
 const deleteProduct = async (productId) => {
-  //TODO: Delete Product
-
   //If productId not validate, throw error
   if (!isValidObjectId(productId)) {
     throw new apiError(400, "Invalid productId"); 
@@ -116,10 +115,8 @@ const deleteProduct = async (productId) => {
 };
 
 // Get all Products
-const getAllProducts = async () => {
-  //TODO: Get Products
-  
-  const products = await Product.find({}).sort({ productName: 1 });
+const getProducts = async () => {  
+  const products = await Product.find({});
   if (!products) {
     throw new Error(400, "Product(s) not found");
   }
@@ -127,7 +124,6 @@ const getAllProducts = async () => {
 };
 
 const getProductById = async (productId) => {
-  //TODO: Get Products
   
   const product = await Product.findById(productId);
   if (!product) {
@@ -136,10 +132,24 @@ const getProductById = async (productId) => {
   return product;
 };
 
+//Get Products by Sub Category
+const getProductsBySubCategory = async (subCategoryId) => {
+  if (!isValidObjectId(subCategoryId)) {
+    throw new apiError(400, "Invalid subCategoryId"); 
+  }
+  
+  const products = await Product.find({subCategoryId});
+  if (!products) {
+    throw new Error(400, "Product(s) not found");
+  }
+  return products;
+};
+
 export default {
     registerProduct,
     updateProduct,
     deleteProduct,
-    getAllProducts,
+    getProducts,
     getProductById,
+    getProductsBySubCategory,
 };

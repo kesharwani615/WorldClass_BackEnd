@@ -6,7 +6,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 const registerProdCategory = asyncHandler(async (req, res) => {
   try {
     const { body, files } = req;
-    const response = await prodCategoryService.registerProdCategory(body, files[0].path);
+    const response = await prodCategoryService.registerProdCategory(body, files?.[0]?.path);
     return handleResponse(res, 201, response, "Product category registered successfully");
   } catch (error) {
     return handleError(res, error);
@@ -26,7 +26,7 @@ const updateProdCategory = asyncHandler(async (req, res) => {
 });
 
 //Delete Product Category, if its reference is not in other documents(tables)
-const deleteProdCategory = async (req, res) => {
+const deleteProdCategory = asyncHandler(async (req, res) => {
   try {
     const { params } = req;
     const response = await prodCategoryService.deleteProdCategory( params.id );
@@ -34,9 +34,9 @@ const deleteProdCategory = async (req, res) => {
   } catch (error) {
     return handleError(res, error);
   }
-};
+});
 
-//Update User Info
+//Get all product categories
 const getAllProdCategories = asyncHandler(async (req, res) => {
   try {
     const response = await prodCategoryService.getAllProdCategories();
@@ -44,7 +44,6 @@ const getAllProdCategories = asyncHandler(async (req, res) => {
   } catch (error) {
     return handleError(res, error);
   }
-
 });
 
 //Get product category by Id
