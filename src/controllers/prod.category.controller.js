@@ -57,10 +57,20 @@ const getProdCategory = asyncHandler(async (req, res) => {
   }
 });
 
+const getCategoryWithSubCategoryAndProducts = asyncHandler(async (req, res) => {
+  try {
+    const response = await prodCategoryService.getCategoryWithSubCategoryAndProducts();
+    return handleResponse(res, 200, response, "Product Category fetched successfully");
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
 export { 
   registerProdCategory,
   updateProdCategory,
   getAllProdCategories,
   deleteProdCategory,
   getProdCategory,
+  getCategoryWithSubCategoryAndProducts
 };

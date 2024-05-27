@@ -6,6 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { deleteImage } from "../helpers/helper.methods.js";
 import { log } from "console";
+import { populate } from "dotenv";
 
 // Get the directory path of the current module file
 let currentDir = path.dirname(new URL(import.meta.url).pathname).substring(1);
@@ -116,7 +117,13 @@ const deleteProduct = async (productId) => {
 
 // Get all Products
 const getProducts = async () => {  
-  const products = await Product.find({});
+  const products = await Product.find({}) .populate({
+    path: 'subCategoryId',
+    populate: {
+      path: 'categoryId',
+      model: 'Category'
+    }
+  });
   if (!products) {
     throw new Error(400, "Product(s) not found");
   }

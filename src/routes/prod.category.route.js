@@ -4,6 +4,7 @@ import { upload } from "../middlewares/multer.middleware.js";
 import { 
     deleteProdCategory,
     getAllProdCategories, 
+    getCategoryWithSubCategoryAndProducts, 
     getProdCategory, 
     registerProdCategory, 
     updateProdCategory } from "../controllers/prod.category.controller.js";
@@ -24,5 +25,6 @@ categoryRouter.delete("/delete/:id", deleteProdCategory)
 
 //Get Product Category
 categoryRouter.get("/get-category/:id", getProdCategory);
+categoryRouter.get("/get_category_with-products/", getCategoryWithSubCategoryAndProducts);
 
 export default categoryRouter;

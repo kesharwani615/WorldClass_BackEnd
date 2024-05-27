@@ -105,10 +105,42 @@ const getProdCategory = async (prodCategoryId) => {
   return prodCategory
 };
 
+const getCategoryWithSubCategoryAndProducts = async () => {
+
+  try {
+    const product = await ProductCategory.aggregate(
+      [
+      {
+        '$lookup': {
+          'from': 'productsubcategories', 
+          'localField': '_id', 
+          'foreignField': 'categoryId', 
+          'as': 'subcategory'
+        }
+      }, {
+        '$lookup': {
+          'from': 'products', 
+          'localField': 'subcategory._id', 
+          'foreignField': 'subCategoryId', 
+          'as': 'products'
+        }
+      }
+    ]
+  );
+
+    console.log('///////////////////////////////////////////////////////////////',product);
+    return product;
+    
+  } catch (error) {
+    
+  }
+};
+
 export default {
   registerProdCategory,
   updateProdCategory,
   getAllProdCategories,
   deleteProdCategory,
-  getProdCategory
+  getProdCategory,
+  getCategoryWithSubCategoryAndProducts
 };
