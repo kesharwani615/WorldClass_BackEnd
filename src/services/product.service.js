@@ -15,14 +15,12 @@ currentDir = currentDir.replace(/%20/g, ' ')
 //Register Product
 
 const registerProduct = async (body, productImagePath) => {
-  //TODO: Register a new Product
-
   if (!productImagePath.length) {
     throw new apiError(400, "Product image is required");
   }
 
-  //destructure the body
   const { subCategoryId, productName, productDescription, storage, packSize, cartonSize } = body;
+  console.log("-----", subCategoryId, productName, productDescription);
   if ([subCategoryId, productName, productDescription].some((field) => field?.trim() === "")
   ) {
     throw new apiError(400, "All fields are required");
