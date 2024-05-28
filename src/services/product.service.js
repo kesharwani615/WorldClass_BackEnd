@@ -129,7 +129,12 @@ const getProducts = async () => {
 
 const getProductById = async (productId) => {
   
-  const product = await Product.findById(productId);
+  const product = await Product.findById(productId).populate({
+    path: 'subCategoryId',
+    populate: {
+      path: 'categoryId'
+    }
+  });
   if (!product) {
     throw new Error(400, "Product(s) not found");
   }
