@@ -117,11 +117,10 @@ const deleteProduct = async (productId) => {
 
 // Get all Products
 const getProducts = async () => {  
-  const products = await Product.find({}) .populate({
+  const products = await Product.find({}).populate({
     path: 'subCategoryId',
     populate: {
-      path: 'categoryId',
-      model: 'Category'
+      path: 'categoryId'
     }
   });
   if (!products) {
