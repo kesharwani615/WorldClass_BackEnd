@@ -187,10 +187,12 @@ const getProductsByCategoryAndSubCategory = async () => {
         _id: '$_id',
         categoryName: { $first: '$categoryName' }, 
         categoryDescription: {$first: '$categoryDescription'},
+        categoryImage: {$first: '$categoryImage'},
         subCategory: { 
           $push: {
             _id: '$subCategory._id',
             subCategoryName: '$subCategory.subCategoryName', 
+            subCategoryImage: '$subCategory.subCategoryImage', 
             products: '$products'
           }
         }        
