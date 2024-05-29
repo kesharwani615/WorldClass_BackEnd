@@ -108,7 +108,7 @@ const getProdCategory = async (prodCategoryId) => {
 const getCategoryWithSubCategoryAndProducts = async () => {
 
   try {
-    const product = await ProductCategory.aggregate(
+    const products = await ProductCategory.aggregate(
       [
       {
         '$lookup': {
@@ -128,8 +128,8 @@ const getCategoryWithSubCategoryAndProducts = async () => {
     ]
   );
 
-    console.log('///////////////////////////////////////////////////////////////',product);
-    return product;
+    console.log('-------',products);
+    return products;
     
   } catch (error) {
     

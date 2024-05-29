@@ -82,10 +82,9 @@ const getProductsWithSubCategory = asyncHandler(async (req, res) => {
 });
 
 //Get All Products by Sub Category
-const getProductsByCategorySubCategory = asyncHandler(async (req, res) => {
+const getProductsByCategoryAndSubCategory = asyncHandler(async (req, res) => {
   try {
-    const { params } = req;
-    const response = await productService.getProductsBySubCategory(params.id);
+    const response = await productService.getProductsByCategoryAndSubCategory();
     return handleResponse(res, 200, response, "Product(s) fetched successfully");
   } catch (error) {
     return handleError(res, error);
@@ -99,5 +98,5 @@ export {
   getProducts,
   getProductById,
   getProductsBySubCategory,
-  getProductsByCategorySubCategory,
+  getProductsByCategoryAndSubCategory,
  };

@@ -4,6 +4,7 @@ import {
     deleteProduct, 
     getProductById, 
     getProducts, 
+    getProductsByCategoryAndSubCategory, 
     getProductsBySubCategory, 
     registerProduct, 
     updateProduct } from "../controllers/product.controller.js";
@@ -19,13 +20,16 @@ productRouter.patch("/update/:id", upload('product').array("productImage", 1),  
 // Delete Product
 productRouter.delete("/delete/:id", deleteProduct);
 
-//Get Active Product
+//Get all Product
 productRouter.get("/get-products", getProducts);
 
 //Get Product By Id
 productRouter.get("/get-product/:id", getProductById);
 
-//Get Active Product
+//Get Products by sub category id
 productRouter.get("/get-products-by-sub-category/:id", getProductsBySubCategory);
+
+//Get all Products by Category and Sub Category
+productRouter.get("/get-products-by-category-and-sub-category", getProductsByCategoryAndSubCategory);
 
 export default productRouter;

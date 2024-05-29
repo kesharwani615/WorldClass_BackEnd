@@ -1,4 +1,6 @@
 import { isValidObjectId } from "mongoose";
+import { ProductCategory } from "../models/product.category.model.js";
+import { ProductSubCategory } from "../models/product.sub.category.model.js";
 import { Product } from "../models/product.model.js";
 import { apiError } from "../utils/apiError.js";
 
@@ -127,6 +129,7 @@ const getProducts = async () => {
   return products;
 };
 
+//Get product By Id
 const getProductById = async (productId) => {
   
   const product = await Product.findById(productId).populate({
@@ -154,6 +157,50 @@ const getProductsBySubCategory = async (subCategoryId) => {
   return products;
 };
 
+//Get Products by Sub Category
+const getProductsByCategoryAndSubCategory = async () => {    
+  const products = await ProductCategory.aggregate([
+    {
+      '$lookup': {
+        'from': 'productsubcategories', 
+        'localField': '_id', 
+        'foreignField': 'categoryId', 
+        'as': 'subCategory'
+      }
+    },
+    {
+      '$unwind': {
+        path: '$subCategory',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      '$lookup': {
+        'from': 'products', 
+        'localField': 'subCategory._id', 
+        'foreignField': 'subCategoryId', 
+        'as': 'products'
+      }
+    },
+    {
+      '$group': {
+        _id: '$_id',
+        categoryName: { $first: '$categoryName' }, 
+        categoryDescription: {$first: '$categoryDescription'},
+        subCategory: { 
+          $push: {
+            _id: '$subCategory._id',
+            subCategoryName: '$subCategory.subCategoryName', 
+            products: '$products'
+          }
+        }        
+      }
+    }
+  ]);
+
+  return products;
+};
+
 export default {
     registerProduct,
     updateProduct,
@@ -161,4 +208,5 @@ export default {
     getProducts,
     getProductById,
     getProductsBySubCategory,
+    getProductsByCategoryAndSubCategory
 };
