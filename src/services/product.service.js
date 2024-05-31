@@ -122,13 +122,9 @@ const getProducts = async () => {
   return products;
 };
 
-<<<<<<< Updated upstream
 //Get product By Id
 const getProductById = async (productId) => {  
-=======
-const getProductById = async (productId) => {
   
->>>>>>> Stashed changes
   const product = await Product.findById(productId).populate({
     path: 'subCategoryId',
     populate: {
@@ -143,11 +139,13 @@ const getProductById = async (productId) => {
 
 //Get Products by Sub Category
 const getProductsBySubCategory = async (subCategoryId) => {
-  if (!isValidObjectId(subCategoryId)) {
-    throw new apiError(400, "Invalid subCategoryId"); 
+  const subCategoryIdObject = convertToObjectId(subCategoryId);
+  if (!subCategoryIdObject) {
+    throw new apiError(400, "Invalid ID"); // Stop execution if the ID format is invalid
   }
+
   
-  const products = await Product.find({subCategoryId});
+  const products = await Product.find({_id: subCategoryIdObject});
   if (!products) {
     throw new Error(400, "Product(s) not found");
   }
