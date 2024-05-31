@@ -122,8 +122,13 @@ const getProducts = async () => {
   return products;
 };
 
+<<<<<<< Updated upstream
 //Get product By Id
 const getProductById = async (productId) => {  
+=======
+const getProductById = async (productId) => {
+  
+>>>>>>> Stashed changes
   const product = await Product.findById(productId).populate({
     path: 'subCategoryId',
     populate: {
