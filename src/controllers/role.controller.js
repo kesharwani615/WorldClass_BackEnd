@@ -63,6 +63,16 @@ const getAllRoles = asyncHandler(async (req, res) => {
   }
 });
 
+//Get Role Count
+const getRoleCount = asyncHandler(async (req, res) => {
+  try {
+    const response = await roleService.getRoleCount();
+    return handleResponse(res, 200, response, "Count of Product(s) fetched successfully");
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
 export {
   registerRole,
   updateRole,
@@ -70,4 +80,5 @@ export {
   getRole,
   getAllActiveRoles,
   getAllRoles,
+  getRoleCount,
 };

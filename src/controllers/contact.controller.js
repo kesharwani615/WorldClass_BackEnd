@@ -15,8 +15,7 @@ const registerContact = asyncHandler(async (req, res) => {
 //Delete a contact
 const deleteContact = asyncHandler(async (req, res) => {
   try {
-    const { params } = req;
-    const response = await contactService.deleteContact(params.id);
+    const response = await contactService.deleteContact(req.params.id);
     return handleResponse(res, 200, response, "Contact deleted successfully");
   } catch (error) {
     return handleError(res, error);
@@ -26,8 +25,7 @@ const deleteContact = asyncHandler(async (req, res) => {
 //Get contact by Id
 const getContact = asyncHandler(async (req, res) => {
   try {
-    const { params } = req;
-    const response = await contactService.getContact(params.id);
+    const response = await contactService.getContact(req.params.id);
     return handleResponse(res, 200, response, "Contact fetched successfully");
   } catch (error) {
     return handleError(res, error);
@@ -44,11 +42,11 @@ const getAllContacts = asyncHandler(async (req, res) => {
   }
 });
 
-//Get All Contacts
+//Get Contacts Count
 const getAllContactsCount = asyncHandler(async (req, res) => {
   try {
     const response = await contactService.getAllContactsCount();
-    return handleResponse(res, 200, response, "All contact(s) fetched successfully");
+    return handleResponse(res, 200, response, "Count of contact(s) fetched successfully");
   } catch (error) {
     return handleError(res, error);
   }

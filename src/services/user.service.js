@@ -3,21 +3,16 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary, deleteOnCloudinary } from "../utils/cloudinary.js";
 import { apiResponse } from "../utils/apiResponse.js";
 import { apiError } from "../utils/apiError.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
 import Jwt from "jsonwebtoken";
 import fs from "fs";
 import  {sendEmail}  from "../utils/send.email.js";
-import path  from 'path';
-
-// Import the email content object from the specified file for email content access
-import {
-  emailContentInfo,
-} from "../utils/emailTemplates/welcomeEmail.js";
 import { Product } from "../models/product.model.js";
 import { Contact } from "../models/contact.model.js";
 import { ProductCategory } from "../models/product.category.model.js";
 import { ProductSubCategory } from "../models/product.sub.category.model.js";
 import { Role } from "../models/role.model.js";
+import { Brand } from "../models/brand.model.js";
+import { deleteImage } from "../helpers/helper.methods.js";
 
 
 //Generate Access and Refresh Tokens
@@ -73,14 +68,8 @@ const registerUser = async (userDetails, avatarLocalPath) => {
     roleId
   });
 
-  console.log("created user:---", user);
   if (!user) {
-    fs.unlink(avatarLocalPath, (err) => {
-      if (err) {
-        console.error('Error deleting file:', err);
-        return;
-      }
-    });
+    deleteImage(avatarLocalPath);
     throw new apiError(500, "Something went wrong while registering the user");
   }
 
@@ -521,30 +510,34 @@ const forgetPassword = async (forgetDetails) => {
 
 // Dashboard
 const fetchDashboard = async () => {
-
   try {
-    const user = await User.countDocuments();
-    const roles = await Role.countDocuments();
-    const product = await Product.countDocuments();
-    const contacts = await Contact.countDocuments();
-    const productCategory = await ProductCategory.countDocuments();
-    const productSubCategory = await ProductSubCategory.countDocuments();
+    const counts = await Promise.all([
+      User.countDocuments(),
+      Role.countDocuments(),
+      Brand.countDocuments(),
+      Product.countDocuments(),
+      Contact.countDocuments(),
+      ProductCategory.countDocuments(),
+      ProductSubCategory.countDocuments()
+    ]);
+
+    const [users, roles, brands, products, contacts, productCategories, productSubCategories] = counts;
 
     return {
-      user,
+      users,
       roles,
-      product,
+      brands,
+      products,
       contacts,
-      productCategory,
-      productSubCategory
-    }
+      productCategories,
+      productSubCategories
+    };
 
   } catch (error) {
-    
+    console.error("Error fetching dashboard data:", error);
+    throw error; // Re-throw the error to handle it upstream if necessary
   }
-  
-}
-
+};
 
 //Get All User's list
 const fetchAllUsers = async () => {

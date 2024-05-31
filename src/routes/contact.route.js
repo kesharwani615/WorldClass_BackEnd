@@ -18,6 +18,6 @@ contactRouter.get("/get-contact/:id", getContact);
 //Get all contact
 contactRouter.get("/get-all-contacts", getAllContacts);
 //Get contacts count
-contactRouter.get("/total-contacts", getAllContactsCount);
+contactRouter.get("/contact-count", getAllContactsCount);
 
 export default contactRouter;  

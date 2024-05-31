@@ -1,25 +1,25 @@
 import mongoose, {Schema} from "mongoose";
 
 const brandSchema = new Schema({
+    brandType: {
+        type: String,
+        required: true,
+        enum: ["Our Brands", "Associated Brands"]
+    },
     brandName: {
+        type: String,
+        required: true
+    },
+    brandDescription: {
         type: String,
         required: true
     },
     brandLogo: {
         type: String,
         required: true,
-    },
-    brandDescription: {
-        type: String,
-        required: true
-    },
-    brandType: {
-        type: String,
-        required: true,
-        enum: ["Our Brands", "Associated Brands"]
-    }
+    }    
 },
     { timestamps: true }
 );
 
-export const Contact = mongoose.model("Contact", contactSchema);
+export const Brand = mongoose.model("Brand", brandSchema);

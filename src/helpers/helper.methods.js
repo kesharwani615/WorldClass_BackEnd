@@ -1,7 +1,14 @@
 import { apiResponse } from "../utils/apiResponse.js";
 import { apiError } from "../utils/apiError.js";
-import { isValidObjectId } from "mongoose";
+import { mongoose, isValidObjectId } from "mongoose";
 import fs from 'fs';
+import path from 'path';
+
+const { ObjectId } = mongoose.Types;
+
+// Get the directory path of the current module file
+let currentDir = path.dirname(new URL(import.meta.url).pathname).substring(1);
+currentDir = currentDir.replace(/%20/g, ' ')
 
 // Password validation Method
 const validatePassword = (password) => {
@@ -22,6 +29,8 @@ const validateEmail = (email) => {
 
 // Delete Image from given path
 const deleteImage = (imagePath) => {
+  imagePath = path.join(currentDir, '..','..', imagePath);
+  
   if (fs.existsSync(imagePath)) {
     try {
       fs.unlinkSync(imagePath);
@@ -42,7 +51,7 @@ const handleResponse = (res, statusCode, data, message) => {
 
 // Helper function to handle errors
 const handleError = (res, error) => {
-  return res.status(500).json(new apiError({ statusCode: error.statusCode, message: error.message }));
+  return res.status(error.statusCode).json(new apiError({ statusCode: error.statusCode, message: error.message }));
 };
 
 // Helper function to validate role details
@@ -55,8 +64,18 @@ const validateRoleDetails = (roleDetail) => {
 // Helper function to validate ObjectId
 const validateObjectId = (id, message) => {
   if (!isValidObjectId(id) || !id?.trim()) {
-    throw new apiError(400, message);
+    throw new apiError(200, message);
   }
+};
+
+// Helper function to convert a string ID into ObjectId
+const convertToObjectId = (id) => {
+    if (!ObjectId.isValid(id) || !isValidObjectId(id)) {
+      console.log('Invalid ID format');
+      return null;
+    }
+    
+    return new ObjectId(id);
 };
 
 export {  
@@ -66,5 +85,6 @@ export {
   handleResponse,
   handleError,
   validateRoleDetails,
-  validateObjectId
+  validateObjectId,
+  convertToObjectId
 };

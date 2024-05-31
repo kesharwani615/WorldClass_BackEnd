@@ -1,118 +1,111 @@
-import { isValidObjectId } from "mongoose";
 import { ProductCategory } from "../models/product.category.model.js";
 import { ProductSubCategory } from "../models/product.sub.category.model.js";
 import { Product } from "../models/product.model.js";
 import { apiError } from "../utils/apiError.js";
-
-import fs from 'fs';
-import path from 'path';
-import { deleteImage } from "../helpers/helper.methods.js";
-import { log } from "console";
-import { populate } from "dotenv";
-
-// Get the directory path of the current module file
-let currentDir = path.dirname(new URL(import.meta.url).pathname).substring(1);
-currentDir = currentDir.replace(/%20/g, ' ')
+import { deleteImage, validateObjectId , convertToObjectId} from "../helpers/helper.methods.js";
 
 //Register Product
-
 const registerProduct = async (body, productImagePath) => {
-  if (!productImagePath.length) {
-    throw new apiError(400, "Product image is required");
-  }
-
-  const { subCategoryId, productName, productDescription, storage, packSize, cartonSize } = body;
-  console.log("-----", subCategoryId, productName, productDescription);
-  if ([subCategoryId, productName, productDescription].some((field) => field?.trim() === "")
-  ) {
-    throw new apiError(400, "All fields are required");
-  }
-
-  const productExists = await Product.findOne({ productName });
-
-  if (productExists) {
-    throw new apiError(409, "Product name is already exists.");
-  }
-
-  const product = await Product.create({
-    subCategoryId,
-    productName,
-    productDescription,
-    productImage: productImagePath,
-    storage,
-    packSize,
-    cartonSize
-  });
-
-  if (!product) {
-    fs.unlink(productImagePath, (err) => {
-      if (err) {
-        console.error("Error deleting file:", err);
-        return;
-      }
+  try {
+    if (!productImagePath || !productImagePath.length) {
+      throw new apiError(400, "Product image is required");
+    }
+  
+    const { subCategoryId, productName, productDescription, storage, packSize, cartonSize } = body;
+    if ([subCategoryId, productName, productDescription].some((field) => field?.trim() === "")
+    ) {
+      throw new apiError(400, "All fields are required");
+    }
+  
+    const findProduct = await Product.findOne({ productName });
+  
+    if (findProduct) {
+      throw new apiError(409, "Product name is already exists.");
+    }
+  
+    const product = await Product.create({
+      subCategoryId,
+      productName,
+      productDescription,
+      productImage: productImagePath,
+      storage,
+      packSize,
+      cartonSize
     });
-    throw new apiError(500, "Something went wrong while registering the product");
+  
+    return product;
+  } catch (error) {
+    if (productImagePath) {
+      deleteImage(productImagePath);
+    }
+    throw error;
   }
-
-  return product;
 };
 
 //Update Product Category
 const updateProduct = async (body, productId, productImagePath) => {
+try {
+    const productIdObject = convertToObjectId(productId);
+    if (!productIdObject) {
+      throw new apiError(400, "Invalid ID"); // Stop execution if the ID format is invalid
+    }
 
-  // If productId is not validate, throw error 
-  if(!isValidObjectId(productId)) {
-    throw new apiError(400, "Invalid product ID");
-  }
+    const { productName, productDescription } = body;
   
-  //destructure the body
-  const { productName, productDescription, storage, packSize, cartonSize } = body;
-
-  if (
-    [productName, productDescription].some((field) => field?.trim() === "")
-  ) {
-    throw new apiError(400, "All fields are required");
-  }
-
-  // Find the product by ID
-  const product = await Product.findOne({_id: productId});
-
-  //If product not found, throw error
-  if(!product) {
-    throw new apiError(404, "Product Not Found");
-  }
+    if (
+      [productName, productDescription].some((field) => field?.trim() === "")
+    ) {
+      throw new apiError(400, "All fields are required");
+    }
   
-  //Remove existing product image if it exists
-  if (productImagePath) {
-    deleteImage(path.join(currentDir, '..','..', product.productImage));
-    product.productImage = productImagePath;
+    const findProduct = await Product.findOne({ _id: productIdObject });
+    if(!findProduct) {      
+      throw new apiError(404, "Product Not Found");
+    }
+    
+    if (productImagePath) {
+      deleteImage(findProduct.productImage);    
+      findProduct.productImage = productImagePath;
+    }
+  
+    Object.assign(findProduct, body)
+    
+    const updatedProduct = await findProduct.save();
+  
+    return updatedProduct;
+} catch (error) {
+  if(productImagePath){
+    deleteImage(productImagePath);
   }
-
-  // Update other product details
-  product.set(body);
-
-  // Save the changes to the Product document
-  const updateProduct = await product.save();
-
-  console.log("Updated Product ====", updateProduct);
-
-  return updateProduct;
+  throw error;
+}
 }
 
 //Delete Product
 const deleteProduct = async (productId) => {
-  //If productId not validate, throw error
-  if (!isValidObjectId(productId)) {
-    throw new apiError(400, "Invalid productId"); 
+  const productIdObject = convertToObjectId(productId);
+  if (!productIdObject) {
+    throw new apiError(400, "Invalid ID"); // Stop execution if the ID format is invalid
   }
 
-  const deletedProduct = await Product.findByIdAndDelete(productId );
-
-  if (!deletedProduct) {
-    throw new apiError(400, "Either Product could not be found or already deleted"); 
+  const productToDelete = await Product.findOne({_id: productIdObject});
+  if (!productToDelete) {
+    throw new apiError(404, "Product not found"); 
   }
 
-  return deletedProduct;
+  const imageToDelete = productToDelete.productImage;
+
+  const result = await Product.deleteOne({_id: productIdObject});
+
+  if (!result.deletedCount === 0) {
+    throw new apiError(404, "Product not found"); 
+  } 
+    
+  if(imageToDelete){
+    deleteImage(imageToDelete);
+  }
+
+  return productToDelete;        
 };
 
 // Get all Products
@@ -130,8 +123,7 @@ const getProducts = async () => {
 };
 
 //Get product By Id
-const getProductById = async (productId) => {
-  
+const getProductById = async (productId) => {  
   const product = await Product.findById(productId).populate({
     path: 'subCategoryId',
     populate: {
@@ -203,6 +195,16 @@ const getProductsByCategoryAndSubCategory = async () => {
   return products;
 };
 
+//Get Product Count
+const getProductCount = async () => {
+  const product = await Product.countDocuments();
+  if (!product) {
+    throw new apiError(404, "No Product(s) found");
+  }
+
+  return product;
+};
+
 export default {
     registerProduct,
     updateProduct,
@@ -210,5 +212,6 @@ export default {
     getProducts,
     getProductById,
     getProductsBySubCategory,
-    getProductsByCategoryAndSubCategory
+    getProductsByCategoryAndSubCategory,
+    getProductCount,
 };

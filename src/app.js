@@ -29,6 +29,7 @@ import categoryRouter from "./routes/prod.category.route.js";
 import subCategoryRouter from "./routes/prod.sub.category.route.js";
 import productRouter from "./routes/product.route.js";
 import contactRouter from "./routes/contact.route.js";
+import brandRouter from "./routes/brand.route.js";
 
 //Routes declaration
 //User route
@@ -43,6 +44,9 @@ app.use("/api/v1/sub_category", subCategoryRouter);
 app.use("/api/v1/product", productRouter);
 //Contact route
 app.use("/api/v1/contact", contactRouter);
+//Brand route
+app.use("/api/v1/brand", brandRouter);
+
 
 //http://localhost:8000/api/v1/users/register
 

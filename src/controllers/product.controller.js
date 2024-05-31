@@ -6,9 +6,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 const registerProduct = asyncHandler(async (req, res) => {
   //TODO: Register a new Product
   try {
-    const { body, files } = req;
-    // Extract product details like product Name, Description etc
-    const response = await productService.registerProduct(body, files[0].path);
+    const response = await productService.registerProduct(req.body, req.files?.[0]?.path);
     return handleResponse(res, 201, response, "Product registered successfully");
   } catch (error) {
     return handleError(res, error);
@@ -19,8 +17,7 @@ const registerProduct = asyncHandler(async (req, res) => {
 const updateProduct = asyncHandler(async (req, res) => {
   //TODO: Update Product details
   try {
-    const { body, params, files } = req;
-    const response =  await productService.updateProduct(body, params.id, files?.[0]?.path)
+    const response =  await productService.updateProduct(req.body, req.params.id, req.files?.[0]?.path)
     return handleResponse(res, 202, response, "Product updated successfully");
   } catch (error) {
     return handleError(res, error);
@@ -29,10 +26,8 @@ const updateProduct = asyncHandler(async (req, res) => {
 
 //Delete product
 const deleteProduct = async (req, res) => {
-  //TODO: Delete Product from DB
   try {
-    const { params } = req;
-    const response = await productService.deleteProduct( params.id );
+    const response = await productService.deleteProduct( req.params.id );
     return handleResponse(res, 200, response, "Product deleted successfully");
   } catch (error) {
     return handleError(res, error);
@@ -52,8 +47,7 @@ const getProducts = asyncHandler(async (req, res) => {
 //Get product by Id
 const getProductById = asyncHandler(async (req, res) => {
   try {
-    const { params } = req;
-    const response = await productService.getProductById(params.id);
+    const response = await productService.getProductById(req.params.id);
     return handleResponse(res, 200, response, "Product fetched successfully");
   } catch (error) {
     return handleError(res, error);
@@ -63,29 +57,28 @@ const getProductById = asyncHandler(async (req, res) => {
 //Get All Products by Sub Category
 const getProductsBySubCategory = asyncHandler(async (req, res) => {
   try {
-    const { params } = req;
-    const response = await productService.getProductsBySubCategory(params.id);
+    const response = await productService.getProductsBySubCategory(req.params.id);
     return handleResponse(res, 200, response, "Product(s) fetched successfully");
   } catch (error) {
     return handleError(res, error);
   }
 });
 
-const getProductsWithSubCategory = asyncHandler(async (req, res) => {
-  try {
-    const { params } = req;
-    const response = await productService.getProductsBySubCategory(params.id);
-    return handleResponse(res, 200, response, "Product(s) fetched successfully");
-  } catch (error) {
-    return handleError(res, error);
-  }
-});
-
-//Get All Products by Sub Category
+//Get Products with Category and Sub Category
 const getProductsByCategoryAndSubCategory = asyncHandler(async (req, res) => {
   try {
     const response = await productService.getProductsByCategoryAndSubCategory();
     return handleResponse(res, 200, response, "Product(s) fetched successfully");
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
+//Get Product Count
+const getProductCount = asyncHandler(async (req, res) => {
+  try {
+    const response = await productService.getProductCount();
+    return handleResponse(res, 200, response, "Count of Product(s) fetched successfully");
   } catch (error) {
     return handleError(res, error);
   }
@@ -99,4 +92,5 @@ export {
   getProductById,
   getProductsBySubCategory,
   getProductsByCategoryAndSubCategory,
+  getProductCount,
  };
