@@ -28,5 +28,6 @@ productRouter.get("/get-products-by-sub-category/:id", getProductsBySubCategory)
 productRouter.get("/get-products-by-category-and-sub-category", getProductsByCategoryAndSubCategory);
 //Get Product count
 productRouter.get("/product-count", getProductCount);
+productRouter.get("/product-count", getProductCount);
 
 export default productRouter;

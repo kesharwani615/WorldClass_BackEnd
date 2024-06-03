@@ -145,7 +145,7 @@ const getProductsBySubCategory = async (subCategoryId) => {
   }
 
   
-  const products = await Product.find({_id: subCategoryIdObject});
+  const products = await Product.find({subCategoryId: subCategoryIdObject});
   if (!products) {
     throw new Error(400, "Product(s) not found");
   }
