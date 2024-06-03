@@ -20,6 +20,7 @@ const registerProdSubCategory = async (body, prodSubCategoryImagePath) => {
     }
 
     const prodSubCategoryExists = await ProductSubCategory.findOne({
+      categoryId:{$eq:categoryId},
       subCategoryName,
     });
 
