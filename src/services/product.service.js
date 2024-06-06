@@ -32,8 +32,16 @@ const registerProduct = async (body, productImagePath) => {
       packSize,
       cartonSize
     });
+
+    const x = await Product.findById(product._id).populate({
+      path: 'subCategoryId',
+      populate: {
+        path: 'categoryId'
+      }
+    });
   
-    return product;
+    return x;
+  
   } catch (error) {
     if (productImagePath) {
       deleteImage(productImagePath);
@@ -71,8 +79,14 @@ try {
     Object.assign(findProduct, body)
     
     const updatedProduct = await findProduct.save();
+    const x = await Product.findById(productIdObject).populate({
+      path: 'subCategoryId',
+      populate: {
+        path: 'categoryId'
+      }
+    });
   
-    return updatedProduct;
+    return x;
 } catch (error) {
   if(productImagePath){
     deleteImage(productImagePath);
