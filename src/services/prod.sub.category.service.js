@@ -20,7 +20,7 @@ const registerProdSubCategory = async (body, prodSubCategoryImagePath) => {
     }
 
     const prodSubCategoryExists = await ProductSubCategory.findOne({
-      categoryId:{$eq:categoryId},
+      //categoryId:{$eq:categoryId},
       subCategoryName,
     });
 
@@ -121,8 +121,7 @@ const deleteProductSubCategory = async (productSubCategoryId) => {
 // Get all Product Sub Categories
 const getAllProductSubCategories = async () => {
   const productSubCategories = await ProductSubCategory.find({})
-    .populate({ path: "categoryId" })
-    .sort({ subCategoryName: 1 });
+    .populate({ path: "categoryId" });
   if (!productSubCategories) {
     throw new Error(400, "Product Sub Category(ies) not found");
   }

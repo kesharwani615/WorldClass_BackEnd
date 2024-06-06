@@ -58,7 +58,7 @@ try {
       throw new apiError(400, "All fields are required");
     }
   
-    const findProduct = await Product.findOne({ _id: productIdObject });
+    const findProduct = await Product.findOne({ _id: productIdObject }).populate('subCategoryId');
     if(!findProduct) {      
       throw new apiError(404, "Product Not Found");
     }
@@ -115,7 +115,7 @@ const getProducts = async () => {
     populate: {
       path: 'categoryId'
     }
-  });
+  }).sort({ productName: 1 });
   if (!products) {
     throw new Error(400, "Product(s) not found");
   }

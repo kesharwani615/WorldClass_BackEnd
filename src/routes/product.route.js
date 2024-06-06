@@ -13,9 +13,9 @@ import {
 const productRouter = Router();
 
 // Register Product
-productRouter.post("/register", upload("product").array("productImage", 1), registerProduct);
+productRouter.post("/register", upload("products").array("productImage", 1), registerProduct);
 // Update Product Category
-productRouter.patch("/update/:id", upload('product').array("productImage", 1),  updateProduct);
+productRouter.patch("/update/:id", upload('products').array("productImage", 1),  updateProduct);
 // Delete Product
 productRouter.delete("/delete/:id", deleteProduct);
 //Get all Product

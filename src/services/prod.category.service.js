@@ -113,7 +113,7 @@ const deleteProdCategory = async (prodCategoryId) => {
 
 // Get all Product Categories
 const getAllProdCategories = async () => {
-  const prodCategories = await ProductCategory.find({}).sort({ categoryName: 1 });
+  const prodCategories = await ProductCategory.find({});
   if (!prodCategories) {
     throw new Error(400, "Product Category(ies) not found");
   }
