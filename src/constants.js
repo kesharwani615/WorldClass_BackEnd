@@ -1,5 +1,5 @@
 //Production database
-// export const DB_NAME = "world_class_foods"
+export const DB_NAME = "world_class_foods"
 
 //Development database
-export const DB_NAME = "world_class_foods_dev"
+//export const DB_NAME = "world_class_foods_dev"
